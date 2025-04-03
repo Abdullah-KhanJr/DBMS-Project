@@ -1,0 +1,27 @@
+{
+  "name": "dbms-project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abdullah-KhanJr/DBMS-Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Abdullah-KhanJr/DBMS-Project/issues"
+  },
+  "homepage": "https://github.com/Abdullah-KhanJr/DBMS-Project#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
