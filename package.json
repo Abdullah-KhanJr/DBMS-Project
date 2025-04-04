@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Abdullah-KhanJr/DBMS-Project#readme",
   "description": "",
   "dependencies": {
+    "ejs": "^3.1.10",
     "express": "^5.1.0"
   },
   "devDependencies": {
