@@ -1,3 +1,5 @@
+// npm run dev // to run server
+
 const express = require("express");
 const app = express();
 
@@ -21,7 +23,7 @@ app.get("/users/login", (req, res) => {
 
 
 app.get("/users/dashboard", (req, res) => {
-    res.render("dashboard", {User: "Abdullah"});
+    res.render("dashboard", {user: "Abdullah"});
 })
 
 
