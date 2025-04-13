@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration | Attendance System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="registration-container">
+        <div class="registration-header">
+            <h1>Create Account</h1>
+            <p>Register for the attendance system</p>
+        </div>
+        
+        <form id="registrationForm" class="registration-form">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="userType">Select Role</label>
+                <select id="userType" name="userType" required>
+                    <option value="">Select user type</option>
+                    <option value="student">Student</option>
+                    <option value="faculty">Faculty Member</option>
+                </select>
+            </div>
+            
+            <!-- Student Faculty Selection -->
+            <div class="form-group" id="studentFacultyGroup" style="display: none;">
+                <label for="studentFaculty">Faculty</label>
+                <select id="studentFaculty" name="studentFaculty">
+                    <option value="">Select your faculty</option>
+                    <option value="Artificial Intelligence">Artificial Intelligence</option>
+                    <option value="Chemical Engineering">Chemical Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Cyber Security">Cyber Security</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Electrical Engineering">Electrical Engineering</option>
+                    <option value="Management Sciences">Management Sciences</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Software Engineering">Software Engineering</option>
+                </select>
+            </div>
+            
+            <!-- Faculty Department Selection -->
+            <div class="form-group" id="facultyDeptGroup" style="display: none;">
+                <label for="facultyDept">Faculty Department</label>
+                <select id="facultyDept" name="facultyDept">
+                    <option value="">Select your department</option>
+                    <option value="Chemical and Material Engineering">Chemical and Material Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                    <option value="Electrical Engineering">Electrical Engineering</option>
+                    <option value="Management Sciences">Management Sciences</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+                <span id="emailError" class="error-message"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <span id="passwordError" class="error-message"></span>
+            </div>
+            
+            <button type="submit" class="register-btn">Register</button>
+            
+            <div class="login-link">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Highlight current page in navigation
+        document.querySelectorAll('.auth-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('current-page');
+            }
+        });
+    </script>
+    
+</body>
+</html>
