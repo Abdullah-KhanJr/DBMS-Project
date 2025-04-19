@@ -6,13 +6,44 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const path = require('path');
-require('dotenv').config();
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, 'frontend'))); // Serve static files
+app.use(express.static(path.join(__dirname, 'frontend')));
 app.use(bodyParser.json());
 app.use(cors());
+
+// PostgreSQL connection
+const pool = new Pool({
+  user: process.env.DB_USER || 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME || 'loginauth',
+  password: process.env.DB_PASSWORD || 'loginauth',
+  port: process.env.DB_PORT || 5432,
+});
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_very_secure_secret_key';
+const JWT_EXPIRES_IN = '1h';
+
+// Validate email by user type
+function validateEmailByUserType(email, userType) {
+  if (userType === 'student') {
+    return /^u\d{7}@giki\.edu\.pk$/.test(email);
+  } else if (userType === 'faculty' || userType === 'admin') {
+    return /^[a-zA-Z.]+@giki\.edu\.pk$/.test(email);
+  }
+  return false;
+}
+
+// Check if admin exists
+async function adminExists() {
+  const result = await pool.query('SELECT 1 FROM admin LIMIT 1');
+  return result.rows.length > 0;
+}
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
 
 app.get('/api/test-db', async (req, res) => {
   try {
@@ -35,111 +66,64 @@ app.get('/api/test-db', async (req, res) => {
   }
 });
 
-// PostgreSQL connection
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'loginauth',
-  password: process.env.DB_PASSWORD || 'loginauth',
-  port: process.env.DB_PORT || 5432,
-});
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your_very_secure_secret_key';
-const JWT_EXPIRES_IN = '1h';
-
-// Helper function to validate email based on user type
-function validateEmailByUserType(email, userType) {
-  if (userType === 'student') {
-    return /^u\d{7}@giki\.edu\.pk$/.test(email);
-  } else if (userType === 'faculty' || userType === 'admin') {
-    return /^[a-zA-Z.]+@giki\.edu\.pk$/.test(email);
-  }
-  return false;
-}
-
-// Generate student ID (u + 7 digits)
-function generateStudentId() {
-  return `u${Math.floor(1000000 + Math.random() * 9000000)}`;
-}
-
-// Check if admin exists
-async function adminExists() {
-  const result = await pool.query('SELECT 1 FROM admin LIMIT 1');
-  return result.rows.length > 0;
-}
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
-});
-
 // Registration endpoint
 app.post('/api/register', async (req, res) => {
   const { name, email, password, userType, faculty, department, registrationNumber, facultyId } = req.body;
 
-  // Validate email format
   if (!validateEmailByUserType(email, userType)) {
-    return res.status(400).json({ 
-      success: false, 
-      error: userType === 'student' 
-        ? 'Student email must be in format u1234567@giki.edu.pk' 
-        : 'Email must be in format name@giki.edu.pk' 
+    return res.status(400).json({
+      success: false,
+      error: userType === 'student'
+        ? 'Student email must be in format u1234567@giki.edu.pk'
+        : 'Email must be in format name@giki.edu.pk'
     });
   }
 
-  // Check for existing admin if registering as admin
   if (userType === 'admin' && await adminExists()) {
-    return res.status(400).json({ 
-      success: false, 
-      error: 'Admin account already exists. Only one admin is allowed.' 
+    return res.status(400).json({
+      success: false,
+      error: 'Admin account already exists. Only one admin is allowed.'
     });
   }
 
   try {
-    // Start transaction
     await pool.query('BEGIN');
 
-    // Check if email already exists
     const emailCheck = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (emailCheck.rows.length > 0) {
       await pool.query('ROLLBACK');
       return res.status(400).json({ success: false, error: 'Email already registered' });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert into users table
     const userResult = await pool.query(
       `INSERT INTO users 
-      (name, email, password_hash, user_type) 
+      (name, email, password, user_type) 
       VALUES ($1, $2, $3, $4) 
       RETURNING user_id, name, email, user_type`,
-      [name, email, hashedPassword, userType]
+      [name, email, password, userType]
     );
 
     const user = userResult.rows[0];
 
-    // Insert into specific role table
     if (userType === 'student') {
-      // Validate registration number
       if (!registrationNumber || !/^[0-9]{7}$/.test(registrationNumber)) {
         await pool.query('ROLLBACK');
         return res.status(400).json({ success: false, error: 'Invalid registration number format' });
       }
 
-      const studentId = generateStudentId();
       await pool.query(
         `INSERT INTO students 
-        (student_id, user_id, registration_number, faculty) 
-        VALUES ($1, $2, $3, $4)`,
-        [studentId, user.user_id, registrationNumber, faculty]
+        (user_id, registration_number, faculty) 
+        VALUES ($1, $2, $3)`,
+        [user.user_id, registrationNumber, faculty]
       );
-      user.student_id = studentId;
+
       user.registration_number = registrationNumber;
       user.faculty = faculty;
-    } 
-    else if (userType === 'faculty') {
-      // Validate faculty ID
+
+    } else if (userType === 'faculty') {
       if (!facultyId || !/^[0-9]{5}$/.test(facultyId)) {
         await pool.query('ROLLBACK');
         return res.status(400).json({ success: false, error: 'Invalid faculty ID format' });
@@ -154,14 +138,9 @@ app.post('/api/register', async (req, res) => {
       );
       user.faculty_id = facultyResult.rows[0].faculty_id;
       user.department = department;
-    }
-    else if (userType === 'admin') {
-      await pool.query(
-        `INSERT INTO admin 
-        (user_id) 
-        VALUES ($1)`,
-        [user.user_id]
-      );
+
+    } else if (userType === 'admin') {
+      await pool.query(`INSERT INTO admin (user_id) VALUES ($1)`, [user.user_id]);
       user.admin_id = 1;
     }
 
@@ -172,7 +151,6 @@ app.post('/api/register', async (req, res) => {
     await pool.query('ROLLBACK');
     console.error('Registration error:', err);
 
-    // Handle unique constraint violations
     if (err.code === '23505') {
       if (err.constraint === 'students_registration_number_key') {
         return res.status(400).json({ success: false, error: 'Registration number already exists' });
@@ -182,8 +160,8 @@ app.post('/api/register', async (req, res) => {
       }
     }
 
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: 'Registration failed',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
@@ -195,10 +173,9 @@ app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find user by email with all role data
     const userResult = await pool.query(
       `SELECT u.*, 
-       s.student_id, s.registration_number, s.faculty as student_faculty,
+       s.registration_number, s.faculty as student_faculty,
        f.faculty_id, f.department as faculty_dept,
        a.admin_id
        FROM users u
@@ -215,13 +192,10 @@ app.post('/api/login', async (req, res) => {
 
     const user = userResult.rows[0];
 
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
-    if (!isValidPassword) {
+    if (password !== user.password) {
       return res.status(401).json({ success: false, error: 'Invalid email or password' });
     }
 
-    // Prepare user data to return
     const userData = {
       user_id: user.user_id,
       name: user.name,
@@ -230,9 +204,7 @@ app.post('/api/login', async (req, res) => {
       created_at: user.created_at
     };
 
-    // Add role-specific data
     if (user.user_type === 'student') {
-      userData.student_id = user.student_id;
       userData.registration_number = user.registration_number;
       userData.faculty = user.student_faculty;
     } else if (user.user_type === 'faculty') {
@@ -242,20 +214,18 @@ app.post('/api/login', async (req, res) => {
       userData.admin_id = user.admin_id;
     }
 
-    // Generate JWT token
     const token = jwt.sign(
-      { 
-        userId: user.user_id, 
+      {
+        userId: user.user_id,
         userType: user.user_type,
-        ...(user.user_type === 'student' && { 
-          studentId: user.student_id,
-          registrationNumber: user.registration_number 
+        ...(user.user_type === 'student' && {
+          registrationNumber: user.registration_number
         }),
-        ...(user.user_type === 'faculty' && { 
-          facultyId: user.faculty_id 
+        ...(user.user_type === 'faculty' && {
+          facultyId: user.faculty_id
         }),
-        ...(user.user_type === 'admin' && { 
-          adminId: user.admin_id 
+        ...(user.user_type === 'admin' && {
+          adminId: user.admin_id
         })
       },
       JWT_SECRET,
@@ -263,22 +233,23 @@ app.post('/api/login', async (req, res) => {
     );
 
     res.json({ success: true, token, user: userData });
+
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: 'Login failed',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
 });
 
-// Protected route example
+// Protected route
 app.get('/api/me', authenticateToken, async (req, res) => {
   try {
     const query = `
       SELECT u.*, 
-        s.student_id, s.registration_number, s.faculty as student_faculty,
+        s.registration_number, s.faculty as student_faculty,
         f.faculty_id, f.department as faculty_dept,
         a.admin_id
       FROM users u
@@ -287,9 +258,9 @@ app.get('/api/me', authenticateToken, async (req, res) => {
       LEFT JOIN admin a ON u.user_id = a.user_id
       WHERE u.user_id = $1
     `;
-    
+
     const result = await pool.query(query, [req.user.userId]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -304,7 +275,6 @@ app.get('/api/me', authenticateToken, async (req, res) => {
     };
 
     if (user.user_type === 'student') {
-      userData.student_id = user.student_id;
       userData.registration_number = user.registration_number;
       userData.faculty = user.student_faculty;
     } else if (user.user_type === 'faculty') {
@@ -321,7 +291,7 @@ app.get('/api/me', authenticateToken, async (req, res) => {
   }
 });
 
-// Admin check endpoint
+// Check if admin exists
 app.get('/api/admin/exists', async (req, res) => {
   try {
     res.json({ exists: await adminExists() });
@@ -331,7 +301,7 @@ app.get('/api/admin/exists', async (req, res) => {
   }
 });
 
-// Middleware to authenticate JWT token
+// Middleware to verify token
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
