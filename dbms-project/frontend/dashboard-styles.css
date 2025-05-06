@@ -1,0 +1,294 @@
+/* Dashboard Styles */
+:root {
+    --primary-blue: #2563eb;
+    --dark-blue: #1d4ed8;
+    --light-blue: #dbeafe;
+    --white: #ffffff;
+    --light-gray: #f9fafb;
+    --medium-gray: #e5e7eb;
+    --dark-gray: #6b7280;
+    --black: #111827;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light-gray);
+}
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+
+
+/* Full-width Navbar */
+
+.nav-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* .top-nav {
+    background-color: var(--white);
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    z-index: 100;
+} */
+
+.top-nav {
+    background-color: var(--white);
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: var(--white);
+    position: fixed;
+    left: 0;
+    top: 54px;
+    bottom: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    padding-top: 0; /*Account for navbar height*/
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Add this line - adjust pixel value as needed */
+}
+
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 20px 15px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    color: var(--dark-gray);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.menu-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.menu-item:hover {
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+}
+
+.menu-item.active {
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+    font-weight: 500;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-content {
+    padding: 25px;
+    padding-top: 54px;
+    flex: 1;
+}
+
+.dashboard-content h1 {
+    color: var(--black);
+    margin-bottom: 25px;
+}
+
+/* Course Grid - Max 3 per row */
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Course Cards */
+.course-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+}
+
+.course-header {
+    padding: 15px;
+    background-color: var(--light-blue);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.course-header h2 {
+    color: var(--primary-blue);
+    margin: 0;
+    font-size: 20px;
+}
+
+.instructor {
+    font-size: 13px;
+    color: var(--dark-gray);
+}
+
+.course-body {
+    padding: 15px;
+}
+
+.course-body p {
+    margin: 0 0 15px 0;
+    font-weight: 500;
+    color: var(--black);
+}
+
+.attendance-bar {
+    height: 20px;
+    background-color: var(--light-gray);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.progress {
+    height: 100%;
+    border-radius: 10px;
+    background-color: var(--primary-blue);
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.attendance-bar span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    z-index: 1;
+}
+
+.course-footer {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--medium-gray);
+}
+
+.section {
+    font-size: 13px;
+    color: var(--dark-gray);
+}
+
+.view-btn {
+    padding: 6px 12px;
+    background-color: transparent;
+    border: 1px solid var(--primary-blue);
+    color: var(--primary-blue);
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-btn:hover {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .course-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 568px) {
+    .sidebar {
+        width: 65px !important;
+        padding: 10px 0 !important;
+    }
+
+    .menu {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px !important;
+        padding: 15px 0 !important;
+    }
+
+    .menu-item {
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 8px 0 !important;
+        margin: 0 !important;
+    }
+
+    .menu-item span {
+        display: none !important;
+    }
+
+    .menu-item i {
+        font-size: 1.3rem;
+        margin: 0 auto;
+    }
+
+    .main-content {
+        margin-left: 65px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 50px !important; /* Even narrower on phones */
+    }
+    
+    .main-content {
+        margin-left: 50px !important;
+    }
+}

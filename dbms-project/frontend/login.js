@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
+
+    if (localStorage.getItem('authToken')) {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        window.location.href = `${userData.user_type}-dashboard.html`;
+        return; // Exit to prevent further execution
+    }
+
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
@@ -43,6 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
+        
+
         const isEmailValid = validateEmail();
         const isPasswordValid = validatePassword();
         
@@ -51,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-            const response = await fetch('http://localhost:5000/api/login', {
+            const response = await fetch('http://localhost:5001/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
