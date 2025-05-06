@@ -78,14 +78,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('userData', JSON.stringify(data.user));
                 
-                // Redirect based on user type with appropriate data
+                // Redirect based on user type
                 let redirectUrl = '';
                 switch(data.user.user_type) {
                     case 'student':
-                        redirectUrl = `student-dashboard.html?student_id=${data.user.student_id}`;
+                        redirectUrl = 'student-dashboard.html';
                         break;
                     case 'faculty':
-                        redirectUrl = `faculty-dashboard.html?faculty_id=${data.user.faculty_id}`;
+                        redirectUrl = 'faculty-dashboard.html';
                         break;
                     case 'admin':
                         redirectUrl = 'admin-dashboard.html';

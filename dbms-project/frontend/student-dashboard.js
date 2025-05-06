@@ -1,5 +1,42 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Sample data - in a real app, this would come from your API
+    // 1. First, add the authentication check
+    const token = localStorage.getItem('authToken');
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    
+    if (!token || !userData) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // Verify the user is on the correct dashboard
+    const currentPage = window.location.pathname.split('/').pop();
+    const requiredType = currentPage.split('-')[0]; // "student", "faculty", or "admin"
+    
+    if (userData.user_type !== requiredType) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // For all API calls, include the token in headers
+    window.authFetch = async (url, options = {}) => {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            ...options.headers
+        };
+        
+        const response = await fetch(url, { ...options, headers });
+        
+        if (response.status === 401) {
+            // Token expired or invalid
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        return response;
+    };
     const courses = [
         {
             code: 'CS101',
