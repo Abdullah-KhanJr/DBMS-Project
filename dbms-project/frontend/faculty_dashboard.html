@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard | Attendance System</title>
+    <link rel="stylesheet" href="faculty_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <i class="fas fa-chalkboard-teacher logo-icon"></i>
+                <h1 class="logo-text">AttendPro</h1>
+            </div>
+            
+            <nav class="nav-menu">
+                <ul>
+                    <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="#"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Students</a></li>
+                    <li><a href="#"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="profile-pic">
+                    <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Faculty Profile">
+                </div>
+                <div class="profile-info">
+                    <h3>Dr. Sarah Johnson</h3>
+                    <p>Computer Science</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h2>Faculty Dashboard</h2>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Cards -->
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-icon blue-bg">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Total Students</h3>
+                        <p>142</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon dark-blue-bg">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Today's Attendance</h3>
+                        <p>87%</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon navy-bg">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Low Attendance</h3>
+                        <p>12 Students</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon black-bg">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Overall Average</h3>
+                        <p>92%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity and Quick Actions -->
+            <div class="content-row">
+                <section class="recent-activity">
+                    <div class="section-header">
+                        <h3>Recent Attendance</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-class">CS-201</div>
+                            <div class="activity-details">
+                                <p>Data Structures - 05/08/2023</p>
+                                <span class="attendance-rate">89% attendance</span>
+                            </div>
+                            <div class="activity-action">
+                                <button class="btn-view">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-class">CS-301</div>
+                            <div class="activity-details">
+                                <p>Algorithms - 05/07/2023</p>
+                                <span class="attendance-rate">92% attendance</span>
+                            </div>
+                            <div class="activity-action">
+                                <button class="btn-view">View</button>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-class">CS-101</div>
+                            <div class="activity-details">
+                                <p>Intro to Programming - 05/05/2023</p>
+                                <span class="attendance-rate low-attendance">78% attendance</span>
+                            </div>
+                            <div class="activity-action">
+                                <button class="btn-view">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="quick-actions">
+                    <div class="section-header">
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn take-attendance">
+                            <i class="fas fa-clipboard-check"></i>
+                            Take Attendance
+                        </button>
+                        <button class="action-btn generate-report">
+                            <i class="fas fa-file-export"></i>
+                            Generate Report
+                        </button>
+                        <button class="action-btn add-student">
+                            <i class="fas fa-user-plus"></i>
+                            Add Student
+                        </button>
+                        <button class="action-btn send-notice">
+                            <i class="fas fa-envelope"></i>
+                            Send Notice
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Attendance Statistics -->
+            <section class="attendance-stats">
+                <div class="section-header">
+                    <h3>Attendance Statistics</h3>
+                    <div class="time-period">
+                        <select>
+                            <option>Last 7 Days</option>
+                            <option selected>Last 30 Days</option>
+                            <option>This Semester</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="stats-chart">
+                    <!-- This would be replaced with an actual chart in implementation -->
+                    <div class="chart-placeholder">
+                        <p>Attendance Chart Visualization</p>
+                        <div class="chart-bars">
+                            <div class="bar" style="height: 60%;"></div>
+                            <div class="bar" style="height: 75%;"></div>
+                            <div class="bar" style="height: 90%;"></div>
+                            <div class="bar" style="height: 85%;"></div>
+                            <div class="bar" style="height: 70%;"></div>
+                            <div class="bar" style="height: 88%;"></div>
+                            <div class="bar" style="height: 92%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
