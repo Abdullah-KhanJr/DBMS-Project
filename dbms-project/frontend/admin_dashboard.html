@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Attendance System</title>
+    <link rel="stylesheet" href="admin_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <i class="fas fa-user-shield logo-icon"></i>
+                <h1 class="logo-text">AttendPro</h1>
+            </div>
+            
+            <nav class="nav-menu">
+                <ul>
+                    <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="#"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Students</a></li>
+                    <li><a href="#"><i class="fas fa-chalkboard-teacher"></i> Faculty</a></li>
+                    <li><a href="#"><i class="fas fa-building"></i> Departments</a></li>
+                    <li><a href="#"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> System Settings</a></li>
+                    <li><a href="#"><i class="fas fa-user-cog"></i> User Management</a></li>
+                </ul>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="profile-pic">
+                    <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Admin Profile">
+                </div>
+                <div class="profile-info">
+                    <h3>Admin</h3>
+                    <p>System Administrator</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h2>Admin Dashboard</h2>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Cards -->
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-icon blue-bg">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Total Students</h3>
+                        <p>1,842</p>
+                        <span class="card-trend up"><i class="fas fa-arrow-up"></i> 12%</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon dark-blue-bg">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Faculty Members</h3>
+                        <p>78</p>
+                        <span class="card-trend up"><i class="fas fa-arrow-up"></i> 5%</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon navy-bg">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Today's Attendance</h3>
+                        <p>89%</p>
+                        <span class="card-trend down"><i class="fas fa-arrow-down"></i> 3%</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon black-bg">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Critical Alerts</h3>
+                        <p>8</p>
+                        <span class="card-trend up"><i class="fas fa-arrow-up"></i> 2</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity and System Overview -->
+            <div class="content-row">
+                <section class="recent-activity">
+                    <div class="section-header">
+                        <h3>Recent System Activity</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon admin">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p>New faculty member added</p>
+                                <span class="activity-meta">Dr. Robert Chen • 2 hours ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon warning">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p>Low attendance alert for CS-101</p>
+                                <span class="activity-meta">Attendance dropped below 70% • 5 hours ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon system">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p>System backup completed</p>
+                                <span class="activity-meta">Automated process • Yesterday</span>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon report">
+                                <i class="fas fa-file-export"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p>Monthly report generated</p>
+                                <span class="activity-meta">By Admin • Yesterday</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="system-overview">
+                    <div class="section-header">
+                        <h3>System Overview</h3>
+                    </div>
+                    <div class="overview-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>System Health</h4>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 92%;"></div>
+                                </div>
+                                <span>92% Optimal</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>Storage Usage</h4>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 65%;"></div>
+                                </div>
+                                <span>65% Used (1.2TB/2TB)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>Security Status</h4>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%;"></div>
+                                </div>
+                                <span>All systems secure</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Quick Actions and Recent Users -->
+            <div class="content-row">
+                <section class="quick-actions">
+                    <div class="section-header">
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn add-user">
+                            <i class="fas fa-user-plus"></i>
+                            Add User
+                        </button>
+                        <button class="action-btn manage-faculty">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            Manage Faculty
+                        </button>
+                        <button class="action-btn system-settings">
+                            <i class="fas fa-sliders-h"></i>
+                            System Settings
+                        </button>
+                        <button class="action-btn generate-reports">
+                            <i class="fas fa-file-alt"></i>
+                            Generate Reports
+                        </button>
+                    </div>
+                </section>
+
+                <section class="recent-users">
+                    <div class="section-header">
+                        <h3>Recently Added Users</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="users-list">
+                        <div class="user-item">
+                            <div class="user-avatar">
+                                <img src="https://randomuser.me/api/portraits/women/42.jpg" alt="User">
+                            </div>
+                            <div class="user-details">
+                                <h4>Dr. Emily Parker</h4>
+                                <p>Computer Science</p>
+                                <span class="user-role faculty">Faculty</span>
+                            </div>
+                            <div class="user-action">
+                                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="user-item">
+                            <div class="user-avatar">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                            </div>
+                            <div class="user-details">
+                                <h4>Michael Johnson</h4>
+                                <p>2023-CS-142</p>
+                                <span class="user-role student">Student</span>
+                            </div>
+                            <div class="user-action">
+                                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="user-item">
+                            <div class="user-avatar">
+                                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User">
+                            </div>
+                            <div class="user-details">
+                                <h4>Sarah Williams</h4>
+                                <p>Administration</p>
+                                <span class="user-role admin">Admin</span>
+                            </div>
+                            <div class="user-action">
+                                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Department Statistics -->
+            <section class="department-stats">
+                <div class="section-header">
+                    <h3>Department Statistics</h3>
+                    <div class="time-period">
+                        <select>
+                            <option>Last 7 Days</option>
+                            <option selected>Last 30 Days</option>
+                            <option>This Semester</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="department-chart">
+                        <!-- This would be replaced with an actual chart in implementation -->
+                        <div class="chart-placeholder">
+                            <p>Department Attendance Comparison</p>
+                            <div class="chart-bars">
+                                <div class="dept-bar" style="height: 70%;" data-dept="CS"></div>
+                                <div class="dept-bar" style="height: 85%;" data-dept="EE"></div>
+                                <div class="dept-bar" style="height: 78%;" data-dept="ME"></div>
+                                <div class="dept-bar" style="height: 82%;" data-dept="CE"></div>
+                                <div class="dept-bar" style="height: 75%;" data-dept="PH"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="department-list">
+                        <div class="dept-item">
+                            <div class="dept-info">
+                                <h4>Computer Science</h4>
+                                <p>142 Faculty • 1,024 Students</p>
+                            </div>
+                            <div class="dept-attendance">
+                                <span>87%</span>
+                                <div class="attendance-trend up"><i class="fas fa-arrow-up"></i> 2%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="dept-item">
+                            <div class="dept-info">
+                                <h4>Electrical Engineering</h4>
+                                <p>98 Faculty • 756 Students</p>
+                            </div>
+                            <div class="dept-attendance">
+                                <span>91%</span>
+                                <div class="attendance-trend up"><i class="fas fa-arrow-up"></i> 1%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="dept-item">
+                            <div class="dept-info">
+                                <h4>Mechanical Engineering</h4>
+                                <p>87 Faculty • 689 Students</p>
+                            </div>
+                            <div class="dept-attendance">
+                                <span>84%</span>
+                                <div class="attendance-trend down"><i class="fas fa-arrow-down"></i> 3%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
