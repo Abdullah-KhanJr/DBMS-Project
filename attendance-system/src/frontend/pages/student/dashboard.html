@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Attendance System</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active">
+                    <a href="dashboard.html">
+                        <i class="fas fa-book"></i>
+                        <span>My Courses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="attendance.html">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Mark Attendance</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../login.html" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Student Dashboard</h2>
+                </div>
+                <div class="navbar-right">
+                    <div class="user-info">
+                        <span id="student-name">Loading...</span>
+                        <div class="profile-icon">
+                            <i class="fas fa-user-circle"></i>
+                            <div class="dropdown-menu">
+                                <a href="profile.html">Profile</a>
+                                <a href="#" id="logout-link">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="dashboard-header">
+                    <h1>Welcome, <span id="welcome-name">Student</span></h1>
+                    <p>Here's an overview of your courses and attendance</p>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="course-count">0</h3>
+                            <p>Courses</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="attendance-rate">0%</h3>
+                            <p>Attendance Rate</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="absent-count">0</h3>
+                            <p>Absences</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="courses-section">
+                    <div class="section-header">
+                        <h2>Your Enrolled Courses</h2>
+                    </div>
+                    <div class="course-list" id="course-list">
+                        <!-- Courses will be populated here via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/dashboard.js"></script>
+</body>
+</html>

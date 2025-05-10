@@ -1,0 +1,172 @@
+:root {
+    --primary-blue: #4299e1;
+    --dark-blue: #3182ce;
+    --light-blue: #ebf5fb;
+    --text-dark: #2d3748;
+    --text-medium: #4a5568;
+    --text-light: #718096;
+    --border-color: #e2e8f0;
+    --bg-color: #f5f7fa;
+    --white: #ffffff;
+    --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+    --focus-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+    --transition: all 0.3s ease;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  html {
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  body {
+    background-color: var(--bg-color);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dark);
+    padding: 40px 20px;
+    position: relative;
+    overflow-y: auto;
+  }
+  
+  .container {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 480px;
+    margin: 20px auto;
+    transition: var(--transition);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .container:hover {
+    box-shadow: var(--shadow-hover);
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+  
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-medium);
+    font-weight: 500;
+  }
+  
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: var(--focus-shadow);
+  }
+  
+  .error-message {
+    color: #e53e3e;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: none;
+  }
+  
+  button {
+    width: 100%;
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  
+  button:hover {
+    background-color: var(--dark-blue);
+    transform: translateY(-1px);
+  }
+  
+  button:active {
+    transform: translateY(0);
+  }
+  
+  p {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+  }
+  
+  p a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  p a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Handle scrolling for smaller screens */
+  @media screen and (max-height: 800px) {
+    body {
+      align-items: flex-start;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      height: auto;
+    }
+    
+    .container {
+      margin: 10px auto;
+      max-height: none;
+    }
+  }
+  
+  /* Make sure login container uses the same styling */
+  .login-container {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    transition: var(--transition);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .login-container:hover {
+    box-shadow: var(--shadow-hover);
+  }

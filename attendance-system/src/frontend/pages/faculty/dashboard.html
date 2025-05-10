@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard</title>
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Attendance System</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active">
+                    <a href="dashboard.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="courses.html">
+                        <i class="fas fa-book"></i>
+                        <span>My Courses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="generate-qr.html">
+                        <i class="fas fa-qrcode"></i>
+                        <span>Generate QR Code</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="attendance-records.html">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Attendance Records</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../login.html" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Faculty Dashboard</h2>
+                </div>
+                <div class="navbar-right">
+                    <div class="user-info">
+                        <span id="faculty-name">Loading...</span>
+                        <div class="profile-icon">
+                            <i class="fas fa-user-circle"></i>
+                            <div class="dropdown-menu">
+                                <a href="profile.html">Profile</a>
+                                <a href="#" id="logout-link">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="dashboard-header">
+                    <h1>Welcome, <span id="welcome-name">Professor</span></h1>
+                    <p>Here's an overview of your courses and attendance records</p>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="course-count">0</h3>
+                            <p>Courses Teaching</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="student-count">0</h3>
+                            <p>Total Students</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="session-count">0</h3>
+                            <p>Sessions Conducted</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="courses-section">
+                    <div class="section-header">
+                        <h2>Your Courses</h2>
+                    </div>
+                    <div class="course-list" id="faculty-course-list">
+                        <!-- Courses will be populated here via JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="courses-section" style="margin-top: 2rem;">
+                    <div class="section-header">
+                        <h2>Recent Attendance Records</h2>
+                    </div>
+                    <div class="attendance-table-container">
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Course</th>
+                                    <th>Present</th>
+                                    <th>Absent</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-attendance">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="management-section" style="margin-top: 2rem;">
+                    <div class="section-header">
+                        <h2>Quick Actions</h2>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <a href="generate-qr.html" class="btn-primary" style="text-align: center;">
+                            <i class="fas fa-qrcode"></i> Generate QR Code
+                        </a>
+                        <a href="attendance-records.html" class="btn-primary" style="text-align: center;">
+                            <i class="fas fa-clipboard-list"></i> View Records
+                        </a>
+                        <a href="courses.html" class="btn-primary" style="text-align: center;">
+                            <i class="fas fa-book"></i> Manage Courses
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/faculty-dashboard.js"></script>
+</body>
+</html>

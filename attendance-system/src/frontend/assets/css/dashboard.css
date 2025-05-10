@@ -1,0 +1,657 @@
+:root {
+    --primary-color: #4299e1;
+    --secondary-color: #3182ce;
+    --accent-color: #ebf8ff;
+    --bg-color: #f7fafc;
+    --sidebar-bg: #2d3748;
+    --sidebar-active: #4a5568;
+    --text-dark: #1a202c;
+    --text-medium: #4a5568;
+    --text-light: #718096;
+    --border-color: #e2e8f0;
+    --success-color: #48bb78;
+    --warning-color: #ed8936;
+    --danger-color: #e53e3e;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  html, body {
+    height: 100%;
+  }
+  
+  body {
+    background-color: var(--bg-color);
+  }
+  
+  /* Dashboard Layout */
+  .dashboard-container {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 250px;
+    background-color: var(--sidebar-bg);
+    color: white;
+    transition: var(--transition);
+    position: fixed;
+    height: 100%;
+    z-index: 100;
+  }
+  
+  .sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .sidebar-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+  }
+  
+  .sidebar-menu li {
+    margin-bottom: 0.25rem;
+  }
+  
+  .sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: var(--transition);
+  }
+  
+  .sidebar-menu li a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  
+  .sidebar-menu li.active a {
+    background-color: var(--sidebar-active);
+    color: white;
+    border-left: 4px solid var(--primary-color);
+  }
+  
+  .sidebar-menu li a i {
+    margin-right: 0.75rem;
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+  }
+  
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    margin-left: 250px;
+    background-color: var(--bg-color);
+    transition: var(--transition);
+  }
+  
+  /* Top Navbar */
+  .top-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: white;
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  
+  .navbar-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-left h2 {
+    font-size: 1.25rem;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .sidebar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-medium);
+    font-size: 1.25rem;
+    cursor: pointer;
+    margin-right: 1rem;
+  }
+  
+  .navbar-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .user-info span {
+    margin-right: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .profile-icon {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .profile-icon i {
+    font-size: 1.5rem;
+    color: var(--text-medium);
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 4px;
+    box-shadow: var(--shadow-md);
+    min-width: 150px;
+    z-index: 100;
+    display: none;
+    margin-top: 0.5rem;
+  }
+  
+  .profile-icon.active .dropdown-menu {
+    display: block;
+  }
+  
+  .dropdown-menu a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text-medium);
+    text-decoration: none;
+    transition: var(--transition);
+  }
+  
+  .dropdown-menu a:hover {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+  }
+  
+  /* Dashboard Content */
+  .dashboard-content {
+    padding: 2rem;
+  }
+  
+  .dashboard-header {
+    margin-bottom: 2rem;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 1.75rem;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  
+  .dashboard-header p {
+    color: var(--text-light);
+  }
+  
+  /* Stats Cards */
+  .dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+  }
+  
+  .stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  
+  .stat-icon {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.25rem;
+  }
+  
+  .stat-details h3 {
+    font-size: 1.5rem;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+  
+  .stat-details p {
+    color: var(--text-light);
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  
+  /* Courses Section */
+  .courses-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+  }
+  
+  .section-header {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.25rem;
+    margin: 0;
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+  
+  .course-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .course-card {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: var(--transition);
+  }
+  
+  .course-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  
+  .course-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--accent-color);
+  }
+  
+  .course-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+  }
+  
+  .course-code {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+  }
+  
+  .course-info {
+    padding: 1rem;
+  }
+  
+  .course-info p {
+    margin: 0.5rem 0;
+    color: var(--text-medium);
+    font-size: 0.9rem;
+  }
+  
+  .course-info p i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+  }
+  
+  .course-attendance {
+    padding: 0 1rem;
+  }
+  
+  .attendance-bar {
+    height: 6px;
+    width: 100%;
+    background-color: var(--border-color);
+    border-radius: 3px;
+    margin: 0.5rem 0;
+    overflow: hidden;
+  }
+  
+  .attendance-progress {
+    height: 100%;
+    border-radius: 3px;
+  }
+  
+  .course-actions {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+  }
+  
+  .btn-small {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: var(--transition);
+  }
+  
+  .btn-small:hover {
+    background-color: var(--secondary-color);
+  }
+  
+  /* Responsive styles */
+  @media screen and (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+      width: 240px;
+    }
+    
+    .sidebar.active {
+      transform: translateX(0);
+    }
+    
+    .main-content {
+      margin-left: 0;
+    }
+    
+    .sidebar-toggle {
+      display: block;
+    }
+    
+    .dashboard-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+
+  /* Add these additional styles to your existing dashboard.css */
+
+/* Attendance specific styles */
+.attendance-section {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  background-color: var(--accent-color);
+}
+
+#qr-reader {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 1.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+}
+
+#qr-reader-results {
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.btn-primary {
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary i {
+  margin-right: 0.5rem;
+}
+
+.attendance-status {
+  text-align: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.status-success {
+  background-color: rgba(72, 187, 120, 0.1);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+
+.status-error {
+  background-color: rgba(229, 62, 62, 0.1);
+  color: var(--danger-color);
+  border: 1px solid var(--danger-color);
+}
+
+.status-warning {
+  background-color: rgba(237, 137, 54, 0.1);
+  color: var(--warning-color);
+  border: 1px solid var(--warning-color);
+}
+
+.recent-attendance {
+  margin-top: 2rem;
+}
+
+.recent-attendance h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.attendance-table-container {
+  overflow-x: auto;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-table th,
+.attendance-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.attendance-table th {
+  background-color: var(--bg-color);
+  color: var(--text-medium);
+  font-weight: 500;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.attendance-table tr {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.attendance-table tr:hover {
+  background-color: var(--accent-color);
+}
+
+.attendance-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-present {
+  background-color: rgba(72, 187, 120, 0.1);
+  color: var(--success-color);
+}
+
+.status-absent {
+  background-color: rgba(229, 62, 62, 0.1);
+  color: var(--danger-color);
+}
+
+.status-late {
+  background-color: rgba(237, 137, 54, 0.1);
+  color: var(--warning-color);
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: white;
+  margin: auto;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-dark);
+}
+
+.modal-close {
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: var(--text-light);
+}
+
+.modal-close:hover {
+  color: var(--text-dark);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+#camera-container {
+  width: 100%;
+  min-height: 300px;
+  background-color: var(--bg-color);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#scan-result {
+  text-align: center;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+/* Responsive styles for attendance page */
+@media screen and (max-width: 768px) {
+  .attendance-section {
+    padding: 1.5rem;
+  }
+  
+  .qr-container {
+    padding: 1rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+  }
+}

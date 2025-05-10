@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Attendance - Faculty Dashboard</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <!-- Include header component -->
+            <div id="header"></div>
+        </header>
+        
+        <aside>
+            <!-- Include sidebar component -->
+            <div id="sidebar"></div>
+        </aside>
+
+        <main>
+            <h1>Manage Attendance</h1>
+            <form id="attendance-form">
+                <label for="course">Select Course:</label>
+                <select id="course" name="course" required>
+                    <!-- Options will be populated dynamically -->
+                </select>
+
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+
+                <label for="attendance">Attendance:</label>
+                <textarea id="attendance" name="attendance" placeholder="Enter student IDs separated by commas" required></textarea>
+
+                <button type="submit">Submit Attendance</button>
+            </form>
+
+            <div id="attendance-records">
+                <h2>Previous Attendance Records</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Course</th>
+                            <th>Attendance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Attendance records will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <footer>
+            <!-- Include footer component -->
+            <div id="footer"></div>
+        </footer>
+    </div>
+
+    <script src="../../assets/js/dashboard.js"></script>
+    <script src="../../assets/js/attendance.js"></script>
+</body>
+</html>
