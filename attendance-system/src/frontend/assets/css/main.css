@@ -441,4 +441,58 @@ footer a:hover {
   }
 
 
+    /* Additional styles for the centered main content without header */
+  .centered-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 0;
+      min-height: 100vh; /* Takes full viewport height */
+  }
   
+  .hero-container {
+      background-color: var(--light-blue);
+      padding: 3.5rem 2.5rem;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      max-width: 700px;
+      width: 90%;
+  }
+  
+  /* Adjust heading for GIKI Attendance System */
+  .hero-container h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--dark-blue);
+      font-weight: 600;
+  }
+  
+  /* Empty footer style */
+  footer {
+      padding: 0;
+      margin: 0;
+      height: 0;
+      background-color: transparent;
+  }
+  
+  /* Enhance button appearance */
+  .cta-buttons {
+      margin-top: 2rem;
+  }
+  
+  .btn {
+      padding: 0.85rem 2.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin: 0 0.75rem;
+  }
+  
+  .login-btn, .register-btn {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .login-btn:hover, .register-btn:hover {
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  }

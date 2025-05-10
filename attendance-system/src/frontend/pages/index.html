@@ -1,33 +1,33 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance System</title>
-    <link rel="stylesheet" href="../assets/css/main.css">
+    <title>GIKI Attendance System</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <!-- Include header component -->
-        <div id="header"></div>
-    </header>
-    <main>
-        <section class="hero">
-            <h1>Welcome to the Attendance System</h1>
-            <p>Your one-stop solution for managing attendance efficiently.</p>
-            <a href="register.html" class="btn">Register</a>
-            <a href="login.html" class="btn">Login</a>
-        </section>
-    </main>
-    <footer>
-        <!-- Include footer component -->
-        <div id="footer"></div>
-    </footer>
-    <script src="../assets/js/auth.js"></script>
-    <script>
-        // Load header and footer components
-        document.getElementById('header').innerHTML = '<!-- Header HTML goes here -->';
-        document.getElementById('footer').innerHTML = '<!-- Footer HTML goes here -->';
-    </script>
+    <div class="wrapper">
+        <!-- Removing the header section as requested -->
+        
+        <main class="centered-main">
+            <div class="hero-container">
+                <h2>GIKI Attendance System</h2>
+                <p>Welcome to our attendance management system. Please log in or register to continue.</p>
+                <div class="cta-buttons">
+                    <a href="/pages/login.html" class="btn login-btn">Login</a>
+                    <a href="/pages/register.html" class="btn register-btn">Register</a>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <!-- Removed the footer content as requested -->
+        </footer>
+    </div>
+    
+    <script src="/assets/js/auth.js"></script>
 </body>
 </html>
