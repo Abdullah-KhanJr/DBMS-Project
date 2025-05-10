@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students | Faculty</title>
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Attendance System</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="dashboard.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="courses.html">
+                        <i class="fas fa-book"></i>
+                        <span>My Courses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="add-course.html">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Course</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="manage-students.html">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Manage Students</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="mark-attendance.html">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Mark Attendance</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="attendance-records.html">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Attendance Records</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../login.html" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Manage Students</h2>
+                </div>
+                <div class="navbar-right">
+                    <div class="user-info">
+                        <span id="faculty-name">Loading...</span>
+                        <div class="profile-icon">
+                            <i class="fas fa-user-circle"></i>
+                            <div class="dropdown-menu">
+                                <a href="profile.html">Profile</a>
+                                <a href="#" id="logout-link">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Enroll Students</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="enroll-student-form">
+                            <div class="form-group">
+                                <label for="course_id">Course*</label>
+                                <select id="course_id" name="course_id" required>
+                                    <option value="">Select Course</option>
+                                    <!-- Will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reg_number">Student Registration Number*</label>
+                                <input type="text" id="reg_number" name="reg_number" placeholder="e.g. FA22-BCS-001" required>
+                            </div>
+
+                            <div id="student-info" class="form-info" style="display: none;">
+                                <div class="info-header">Student Information</div>
+                                <div id="student-name" class="info-item"></div>
+                                <div id="student-email" class="info-item"></div>
+                            </div>
+
+                            <div id="status-message" class="status-message"></div>
+                            
+                            <div class="form-actions">
+                                <button type="button" id="verify-student-btn" class="btn-secondary">
+                                    <i class="fas fa-search"></i> Verify Student
+                                </button>
+                                <button type="submit" class="btn-primary" id="enroll-btn" disabled>
+                                    <i class="fas fa-user-plus"></i> Enroll Student
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="section" style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Course Enrollments</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="filter-course">Filter by Course</label>
+                                <select id="filter-course" name="filter-course">
+                                    <option value="">All Courses</option>
+                                    <!-- Will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Registration Number</th>
+                                            <th>Student Name</th>
+                                            <th>Course</th>
+                                            <th>Enrollment Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="enrollments-list">
+                                        <!-- Will be populated by JavaScript -->
+                                        <tr>
+                                            <td colspan="5" class="text-center">Loading enrollments...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/manage-students.js"></script>
+</body>
+</html>

@@ -339,24 +339,17 @@ async function loadAttendanceHistory() {
 
 // Add new attendance record to history
 function addAttendanceToHistory(record) {
-    const attendanceHistory = document.getElementById('attendance-history');
-    if (!attendanceHistory) return;
+    let statusClass = ''; // Fix: Added declaration of statusClass variable
     
-    // If the table shows "No records" message, clear it first
-    if (attendanceHistory.innerHTML.includes('No attendance records found')) {
-        attendanceHistory.innerHTML = '';
-    }
-    
-    let statusClass = '';
     switch(record.status) {
         case 'Present':
             statusClass = 'status-present';
             break;
-        case 'Late':
-            statusClass = 'status-late';
-            break;
         case 'Absent':
             statusClass = 'status-absent';
+            break;
+        case 'Leave':
+            statusClass = 'status-leave';
             break;
     }
     

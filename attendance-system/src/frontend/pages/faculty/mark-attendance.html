@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance | Faculty</title>
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Attendance System</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="dashboard.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="courses.html">
+                        <i class="fas fa-book"></i>
+                        <span>My Courses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="add-course.html">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Course</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="manage-students.html">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Manage Students</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="mark-attendance.html">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Mark Attendance</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="attendance-records.html">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Attendance Records</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../login.html" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Mark Attendance</h2>
+                </div>
+                <div class="navbar-right">
+                    <div class="user-info">
+                        <span id="faculty-name">Loading...</span>
+                        <div class="profile-icon">
+                            <i class="fas fa-user-circle"></i>
+                            <div class="dropdown-menu">
+                                <a href="profile.html">Profile</a>
+                                <a href="#" id="logout-link">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="dashboard-header">
+                    <h1>Mark Student Attendance</h1>
+                </div>
+
+                <div class="form-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Session Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="create-session-form">
+                                <div class="form-group">
+                                    <label for="course_id">Course*</label>
+                                    <select id="course_id" name="course_id" required>
+                                        <option value="">Select Course</option>
+                                        <!-- Will be populated dynamically -->
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="session_date">Date*</label>
+                                    <input type="date" id="session_date" name="session_date" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="session_time">Time*</label>
+                                    <input type="time" id="session_time" name="session_time" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="duration">Duration (minutes)*</label>
+                                    <input type="number" id="duration" name="duration" min="30" max="180" value="60" required>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary">Create Session</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="status-message" class="status-message"></div>
+                
+                <div id="attendance-section" class="section" style="margin-top: 2rem; display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Mark Attendance</h3>
+                            <div class="session-info">
+                                <span id="session-course"></span> | 
+                                <span id="session-date"></span> | 
+                                <span id="session-time"></span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form id="mark-attendance-form">
+                                <input type="hidden" id="session_id" name="session_id">
+                                <div class="table-container">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Registration Number</th>
+                                                <th>Student Name</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="students-list">
+                                            <!-- Will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="attendance-actions">
+                                    <button type="button" class="btn-secondary" id="mark-all-present">
+                                        <i class="fas fa-check"></i> Mark All Present
+                                    </button>
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-save"></i> Save Attendance
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="attendance-limits" class="section" style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Course Sessions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Course</th>
+                                            <th>Credit Hours</th>
+                                            <th>Sessions Conducted</th>
+                                            <th>Maximum Sessions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="course-sessions-list">
+                                        <!-- Will be populated by JavaScript -->
+                                        <tr>
+                                            <td colspan="4" class="text-center">Loading course sessions...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/faculty-attendance.js"></script>
+</body>
+</html>
