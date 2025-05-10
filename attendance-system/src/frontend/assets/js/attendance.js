@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Check if user is logged in
     const token = localStorage.getItem('token');
     if (!token) {
@@ -45,20 +45,56 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleLogout(e) {
         e.preventDefault();
         localStorage.removeItem('token');
+        localStorage.removeItem('userData');
         window.location.href = '../login.html';
     }
     
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (logoutLink) logoutLink.addEventListener('click', handleLogout);
     
-    // Set student name (replace with your actual user data retrieval)
-    const mockUserData = {
-        username: "John Smith",
-        id: "12345",
-        role: "student"
-    };
-    
-    if (studentName) studentName.textContent = mockUserData.username;
+    // Get student data from local storage or API
+    try {
+        // First try to get from localStorage
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        if (userData && userData.name) {
+            // If user data exists in localStorage
+            if (studentName) studentName.textContent = userData.name;
+        } else {
+            // If not in localStorage, fetch from API
+            try {
+                const response = await fetch('http://localhost:5000/api/student/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch student data');
+                }
+                
+                const userData = await response.json();
+                
+                if (userData && userData.name) {
+                    if (studentName) studentName.textContent = userData.name;
+                    
+                    // Save to localStorage for future use
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                } else {
+                    throw new Error('Invalid user data received');
+                }
+            } catch (error) {
+                console.error('Error fetching student data:', error);
+                // Show a default name if there's an error
+                if (studentName) studentName.textContent = "Student";
+            }
+        }
+    } catch (error) {
+        console.error('Error processing user data:', error);
+        if (studentName) studentName.textContent = "Student";
+    }
     
     // Initialize QR Scanner
     let html5QrCode;
@@ -141,7 +177,7 @@ function openQRScanner() {
 }
 
 // Process the attendance after scanning a QR code
-function processAttendance(qrData) {
+async function processAttendance(qrData) {
     try {
         // Parse the QR data (assuming it's a JSON string)
         const attendanceData = JSON.parse(qrData);
@@ -149,8 +185,34 @@ function processAttendance(qrData) {
         // Get status element
         const attendanceStatus = document.getElementById('attendance-status');
         
+        // Get the token for API requests
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Not authenticated');
+        }
+        
         // In a real app, you would send this to your backend
-        setTimeout(() => {
+        // Example API call:
+        try {
+            const response = await fetch('http://localhost:5000/api/attendance/mark', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    courseId: attendanceData.courseId,
+                    sessionId: attendanceData.sessionId,
+                    timestamp: new Date().toISOString()
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to mark attendance');
+            }
+            
+            // Close the modal
             const modal = document.getElementById('camera-modal');
             modal.style.display = 'none';
             
@@ -170,8 +232,18 @@ function processAttendance(qrData) {
                 status: 'Present'
             });
             
-            // In a real app, you would update the attendance history from the server
-        }, 1500);
+            // Refresh attendance history from server
+            loadAttendanceHistory();
+            
+        } catch (apiError) {
+            console.error("API Error:", apiError);
+            attendanceStatus.innerHTML = `
+                <div class="status-error">
+                    <i class="fas fa-times-circle"></i>
+                    Error: ${apiError.message || 'Failed to mark attendance'}
+                </div>
+            `;
+        }
         
     } catch (error) {
         console.error("Error processing QR data:", error);
@@ -187,81 +259,93 @@ function processAttendance(qrData) {
 }
 
 // Load attendance history
-function loadAttendanceHistory() {
+async function loadAttendanceHistory() {
     const attendanceHistory = document.getElementById('attendance-history');
     if (!attendanceHistory) return;
     
-    // Mock attendance data (replace with actual API call)
-    const attendanceRecords = [
-        {
-            course: "CS232 Database Management Systems",
-            date: "2025-05-06",
-            time: "09:15 AM",
-            status: "Present"
-        },
-        {
-            course: "CS101 Introduction to Programming",
-            date: "2025-05-05",
-            time: "11:30 AM",
-            status: "Present"
-        },
-        {
-            course: "MATH205 Linear Algebra",
-            date: "2025-05-05",
-            time: "02:00 PM",
-            status: "Late"
-        },
-        {
-            course: "ENG101 Technical Communication",
-            date: "2025-05-04",
-            time: "10:00 AM",
-            status: "Absent"
-        }
-    ];
+    // Show loading state
+    attendanceHistory.innerHTML = '<tr><td colspan="4" class="text-center">Loading attendance history...</td></tr>';
     
-    // Format dates
-    const formattedRecords = attendanceRecords.map(record => {
-        const date = new Date(record.date);
-        return {
-            ...record,
-            date: date.toLocaleDateString()
-        };
-    });
+    // Get token for API calls
+    const token = localStorage.getItem('token');
+    if (!token) {
+        attendanceHistory.innerHTML = '<tr><td colspan="4" class="text-center">Please log in to view attendance history</td></tr>';
+        return;
+    }
     
-    // Generate table rows
-    let historyHTML = '';
-    
-    formattedRecords.forEach(record => {
-        let statusClass = '';
-        switch(record.status) {
-            case 'Present':
-                statusClass = 'status-present';
-                break;
-            case 'Late':
-                statusClass = 'status-late';
-                break;
-            case 'Absent':
-                statusClass = 'status-absent';
-                break;
+    try {
+        // Fetch attendance history from the API
+        const response = await fetch('http://localhost:5000/api/attendance/history', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch attendance history');
         }
         
-        historyHTML += `
-            <tr>
-                <td>${record.course}</td>
-                <td>${record.date}</td>
-                <td>${record.time}</td>
-                <td><span class="attendance-status-badge ${statusClass}">${record.status}</span></td>
-            </tr>
-        `;
-    });
-    
-    attendanceHistory.innerHTML = historyHTML;
+        const attendanceRecords = await response.json();
+        
+        // Format dates
+        const formattedRecords = attendanceRecords.map(record => {
+            const date = new Date(record.date);
+            return {
+                ...record,
+                date: date.toLocaleDateString()
+            };
+        });
+        
+        // Generate table rows
+        let historyHTML = '';
+        
+        if (formattedRecords.length === 0) {
+            historyHTML = '<tr><td colspan="4" class="text-center">No attendance records found</td></tr>';
+        } else {
+            formattedRecords.forEach(record => {
+                let statusClass = '';
+                switch(record.status) {
+                    case 'Present':
+                        statusClass = 'status-present';
+                        break;
+                    case 'Late':
+                        statusClass = 'status-late';
+                        break;
+                    case 'Absent':
+                        statusClass = 'status-absent';
+                        break;
+                }
+                
+                historyHTML += `
+                    <tr>
+                        <td>${record.course}</td>
+                        <td>${record.date}</td>
+                        <td>${record.time}</td>
+                        <td><span class="attendance-status-badge ${statusClass}">${record.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+        
+        attendanceHistory.innerHTML = historyHTML;
+        
+    } catch (error) {
+        console.error('Error loading attendance history:', error);
+        attendanceHistory.innerHTML = '<tr><td colspan="4" class="text-center">Failed to load attendance history</td></tr>';
+    }
 }
 
 // Add new attendance record to history
 function addAttendanceToHistory(record) {
     const attendanceHistory = document.getElementById('attendance-history');
     if (!attendanceHistory) return;
+    
+    // If the table shows "No records" message, clear it first
+    if (attendanceHistory.innerHTML.includes('No attendance records found')) {
+        attendanceHistory.innerHTML = '';
+    }
     
     let statusClass = '';
     switch(record.status) {
