@@ -53,7 +53,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="../login.html" id="logout-btn">
+                    <a href="#" id="logout-btn" class="logout-trigger">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
@@ -176,6 +176,30 @@
         </div>
     </div>
 
+    <!-- Authentication and utility scripts -->
+    <script src="../../assets/js/auth-utils.js"></script>
+    <script src="../../assets/js/logout.js"></script>
+    
+    <!-- Load dashboard scripts -->
     <script src="../../assets/js/faculty-dashboard.js"></script>
+    
+    <!-- Add error handling and display -->
+    <script type="text/javascript">
+        // Add global error handler for API request failures
+        window.addEventListener('error', function(event) {
+            console.error('Global error caught:', event.error);
+            
+            // Check if error is related to authentication
+            const errorMsg = event.error?.message || '';
+            if (errorMsg.toLowerCase().includes('auth') || 
+                errorMsg.toLowerCase().includes('token') || 
+                errorMsg.toLowerCase().includes('login')) {
+                
+                console.log('Authentication error detected, redirecting to login');
+                // Redirect to login with expired parameter
+                window.location.replace('/pages/login.html?expired=true');
+            }
+        });
+    </script>
 </body>
 </html>

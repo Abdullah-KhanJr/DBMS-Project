@@ -1,10 +1,15 @@
 document.addEventListener('DOMContentLoaded', async function() {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    if (!token) {
-        // Redirect to login page if not logged in
-        window.location.href = '../login.html';
-        return;
+    // Check if auth-utils.js is loaded - if not, we'll do basic auth check
+    if (typeof validateUserAuth !== 'function') {
+        console.log('Auth utils not loaded, using basic auth check');
+        // Basic login check - redirect to login page if not logged in
+        const token = localStorage.getItem('token');
+        const userData = localStorage.getItem('userData');
+        if (!token || !userData) {
+            // Redirect to login page with clear indication this is a fresh login
+            window.location.replace('../login.html?expired=true');
+            return;
+        }
     }
 
     // Get DOM elements
@@ -39,14 +44,35 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Handle logout
     function handleLogout(e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default navigation
+        console.log("Logging out...");
+        // Clear all authentication data
         localStorage.removeItem('token');
         localStorage.removeItem('userData');
-        window.location.href = '../login.html';
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('userData');
+        
+        // Clear any cookies related to authentication
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        
+        console.log("Authentication data cleared");
+        
+        // Redirect to login page after a brief delay to ensure storage is cleared
+        setTimeout(() => {
+            window.location.href = '/pages/login.html';
+        }, 100);
     }
     
-    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-    if (logoutLink) logoutLink.addEventListener('click', handleLogout);
+    // Add event listeners for logout buttons/links
+    if (logoutBtn) {
+        console.log("Logout button found, adding event listener");
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+    
+    if (logoutLink) {
+        console.log("Logout link found, adding event listener");
+        logoutLink.addEventListener('click', handleLogout);
+    }
     
     // Get student data from local storage or API
     try {

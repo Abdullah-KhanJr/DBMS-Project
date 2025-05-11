@@ -51,9 +51,8 @@
                         <i class="fas fa-clipboard-list"></i>
                         <span>Attendance Records</span>
                     </a>
-                </li>
-                <li>
-                    <a href="../login.html" id="logout-btn">
+                </li>                <li>
+                    <a href="#" id="logout-btn" class="logout-trigger">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
@@ -222,8 +221,16 @@
                 </div>
             </div>
         </div>
-    </div>
-
+    </div>    <script src="../../assets/js/auth-utils.js"></script>
+    <script src="../../assets/js/logout.js"></script>
+    <script type="text/javascript">
+        // Validate that user is faculty before loading page
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!validateUserAuth('faculty')) {
+                return; // Stop execution if validation fails
+            }
+        });
+    </script>
     <script src="../../assets/js/add-course.js"></script>
 </body>
 </html>

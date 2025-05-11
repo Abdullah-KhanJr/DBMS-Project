@@ -28,7 +28,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="../login.html" id="logout-btn">
+                    <a href="#" id="logout-btn" class="logout-trigger">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
@@ -51,7 +51,7 @@
                             <i class="fas fa-user-circle"></i>
                             <div class="dropdown-menu">
                                 <a href="profile.html">Profile</a>
-                                <a href="#" id="logout-link">Logout</a>
+                                <a href="#" id="logout-link" class="logout-trigger">Logout</a>
                             </div>
                         </div>
                     </div>
@@ -106,6 +106,36 @@
         </div>
     </div>
 
+    <!-- Authentication and utility scripts -->
+    <script src="../../assets/js/auth-utils.js"></script>
+    <script src="../../assets/js/logout.js"></script>
+    
+    <!-- Dashboard functionality script -->
     <script src="../../assets/js/dashboard.js"></script>
+    
+    <!-- Add error handling and display -->
+    <script type="text/javascript">
+        // Add global error handler for API request failures
+        window.addEventListener('error', function(event) {
+            console.error('Global error caught:', event.error);
+            
+            // Check if error is related to authentication
+            const errorMsg = event.error?.message || '';
+            if (errorMsg.toLowerCase().includes('auth') || 
+                errorMsg.toLowerCase().includes('token') || 
+                errorMsg.toLowerCase().includes('login')) {
+                
+                console.log('Authentication error detected, redirecting to login');
+                window.location.replace('/pages/login.html?expired=true');
+            }
+        });
+        
+        // Validate that user is student before loading dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof validateUserAuth === 'function') {
+                validateUserAuth('student');
+            }
+        });
+    </script>
 </body>
 </html>

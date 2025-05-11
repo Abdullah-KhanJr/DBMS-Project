@@ -58,7 +58,7 @@ CREATE TABLE courses (
     course_title CHARACTER VARYING(100) NOT NULL,
     credit_hours INTEGER CHECK (credit_hours IN (1, 2, 3)) NOT NULL,
     faculty_id INTEGER REFERENCES faculty(faculty_id) ON DELETE SET NULL,
-    section_id INTEGER REFERENCES sections(section_id),
+    section VARCHAR(10), -- Changed from section_id to directly store section name
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 	semester VARCHAR(20) NOT NULL
@@ -112,3 +112,6 @@ CREATE TABLE attendance_statistics (
 
 -- Insert the three attendance status options
 INSERT INTO attendance_status (label) VALUES ('Present'), ('Absent'), ('Leave');
+
+-- Insert default section options
+INSERT INTO sections (name) VALUES ('A'), ('B'), ('C'), ('D'), ('E'), ('F'), ('G'), ('H');

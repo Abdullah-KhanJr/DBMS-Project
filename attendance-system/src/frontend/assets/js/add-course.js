@@ -2,20 +2,19 @@
 async function handleFormSubmission(event) {
   event.preventDefault();
   
-  // Get form data
-  const courseCode = document.getElementById('courseCode').value.trim();
-  const courseName = document.getElementById('courseName').value.trim();
-  const creditHours = parseInt(document.getElementById('creditHours').value);
-  const sectionId = document.getElementById('sectionId').value;
+  // Get form data - matching the actual IDs in the HTML form
+  const courseCode = document.getElementById('course_code').value.trim();
+  const courseName = document.getElementById('course_title').value.trim();
+  const creditHours = parseInt(document.getElementById('credit_hours').value);
+  const section = document.getElementById('section').value;
   const description = document.getElementById('description')?.value.trim() || '';
   const semester = document.getElementById('semester')?.value.trim() || 'Spring 2025';
   
-  // Log what we're submitting for debugging
-  console.log('Form values:');
+  // Log what we're submitting for debugging  console.log('Form values:');
   console.log('- courseCode:', courseCode);
   console.log('- courseName:', courseName);
   console.log('- creditHours:', creditHours);
-  console.log('- sectionId:', sectionId);
+  console.log('- section:', section);
   console.log('- description:', description);
   console.log('- semester:', semester);
   
@@ -24,7 +23,7 @@ async function handleFormSubmission(event) {
   if (!courseCode) errors.push('Course Code');
   if (!courseName) errors.push('Course Name');
   if (isNaN(creditHours) || creditHours < 1 || creditHours > 3) errors.push('Credit Hours');
-  if (!sectionId) errors.push('Section');
+  if (!section) errors.push('Section');
   if (!semester) errors.push('Semester');
   
   if (errors.length > 0) {
@@ -37,7 +36,7 @@ async function handleFormSubmission(event) {
     course_code: courseCode,
     course_name: courseName,
     credit_hours: creditHours,
-    section_id: sectionId,
+    section: section,
     description: description,
     semester: semester
   };
@@ -81,15 +80,14 @@ async function handleFormSubmission(event) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Check if user is logged in
-  const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = '../login.html';
+  // Auth validation is now primarily handled by auth-utils.js
+  // This is just a backup check
+  if (!localStorage.getItem('token') || !localStorage.getItem('userData')) {
+    window.location.replace('/pages/login.html');
     return;
   }
-  
-  // Load sections dropdown - hardcode sections A-F
-  const sectionSelect = document.getElementById('sectionId');
+    // Load sections dropdown - hardcode sections A-F
+  const sectionSelect = document.getElementById('section');
   if (sectionSelect) {
     const sections = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
     
@@ -109,10 +107,18 @@ document.addEventListener('DOMContentLoaded', function() {
   if (semesterField && !semesterField.value) {
     semesterField.value = 'Spring 2025';
   }
-  
-  // Handle form submission
-  const courseForm = document.getElementById('courseForm');
+    // Handle form submission - make sure we're using the correct form ID from HTML
+  const courseForm = document.getElementById('add-course-form');
   if (courseForm) {
+    console.log('Found course form with ID: add-course-form');
     courseForm.addEventListener('submit', handleFormSubmission);
+  } else {
+    console.error('Course form not found with ID: add-course-form');
+    // Try to find any form and attach the handler as a fallback
+    const anyForm = document.querySelector('form');
+    if (anyForm) {
+      console.log('Found alternate form, attaching event handler');
+      anyForm.addEventListener('submit', handleFormSubmission);
+    }
   }
 });

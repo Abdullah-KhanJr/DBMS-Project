@@ -1,19 +1,63 @@
 document.addEventListener('DOMContentLoaded', async function() {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '../../pages/login.html';
-        return;
-    }
-
-    console.log("Token found in localStorage");
+    // Check if auth-utils.js is loaded and we have the validateUserAuth function
+    console.log("Initializing faculty dashboard");
     
-    // Load dashboard data
+    // Validate user authentication with role check
+    // Use the auth-utils validateUserAuth if available, otherwise fallback to basic check
+    if (typeof validateUserAuth === 'function') {
+        // Use enhanced auth validation with role check
+        if (!validateUserAuth('faculty')) {
+            console.log("Authentication validation failed");
+            return;
+        }
+    } else {
+        // Fallback to basic token check if auth-utils.js is not loaded
+        console.warn("Auth utilities not detected, using basic auth check");
+        const token = localStorage.getItem('token');
+        const userData = localStorage.getItem('userData');
+        
+        if (!token || !userData) {
+            console.log("No auth token or user data found, redirecting to login");
+            window.location.replace('/pages/login.html?expired=true');
+            return;
+        }
+        
+        try {
+            const user = JSON.parse(userData);
+            // Check if user is faculty type
+            if (user.role !== 'faculty' && user.user_type !== 'faculty') {
+                console.log("User is not faculty, redirecting");
+                window.location.replace('/pages/login.html');
+                return;
+            }
+        } catch (error) {
+            console.error("Error checking user role:", error);
+            window.location.replace('/pages/login.html');
+            return;
+        }
+    }
+    
+    console.log("Authentication valid, loading faculty dashboard data");
     try {
+        // Setup token refresh mechanism if available
+        if (typeof setupTokenRefresh === 'function') {
+            setupTokenRefresh();
+        }
+        
+        // Load dashboard data
         await loadDashboardStats();
         await loadFacultyCourses();
     } catch (error) {
         console.error("Error loading dashboard data:", error);
+        
+        // Check if error is auth-related and redirect if needed
+        if (error.message && 
+            (error.message.includes('authenticate') || 
+             error.message.includes('Unauthorized') || 
+             error.message.includes('token'))) {
+            console.log("Authentication error detected, redirecting to login");
+            window.location.replace('/pages/login.html?expired=true');
+        }
     }
 });
 
@@ -26,13 +70,26 @@ async function loadDashboardStats() {
     const sessionCount = document.getElementById('session-count');
     
     try {
+        // Show loading indicators if available
+        const loadingIndicators = document.querySelectorAll('.loading-indicator');
+        loadingIndicators.forEach(indicator => {
+            if (indicator) indicator.style.display = 'block';
+        });
+        
         // Fetch courses to count them and sum students
         console.log('Fetching courses data...');
         const response = await fetch('http://localhost:5000/api/faculty/courses', {
             headers: {
-                'Authorization': `Bearer ${token}`
-            }
+                'Authorization': `Bearer ${token}`,
+                'Cache-Control': 'no-cache'
+            },
+            credentials: 'include' // Include cookies for HTTP-only token
         });
+        
+        // Check for auth errors first
+        if (response.status === 401 || response.status === 403) {
+            throw new Error('Authentication failed. Please log in again.');
+        }
         
         if (!response.ok) {
             throw new Error(`Failed to fetch course data: ${response.status} ${response.statusText}`);
@@ -46,6 +103,11 @@ async function loadDashboardStats() {
         }
         
         const courses = data.data || [];
+        
+        // Hide loading indicators
+        loadingIndicators.forEach(indicator => {
+            if (indicator) indicator.style.display = 'none';
+        });
         
         // Count courses
         if (courseCount) courseCount.textContent = courses.length;
