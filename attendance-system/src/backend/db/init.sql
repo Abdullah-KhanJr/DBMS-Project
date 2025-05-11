@@ -55,12 +55,13 @@ CREATE TABLE attendance_status (
 CREATE TABLE courses (
     course_id SERIAL PRIMARY KEY,
     course_code CHARACTER VARYING(20) UNIQUE NOT NULL,
-    course_name CHARACTER VARYING(100) NOT NULL,
+    course_title CHARACTER VARYING(100) NOT NULL,
     credit_hours INTEGER CHECK (credit_hours IN (1, 2, 3)) NOT NULL,
     faculty_id INTEGER REFERENCES faculty(faculty_id) ON DELETE SET NULL,
     section_id INTEGER REFERENCES sections(section_id),
     description TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+	semester VARCHAR(20) NOT NULL
 );
 
 -- 4. Course Sessions Table

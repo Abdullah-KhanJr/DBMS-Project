@@ -1,223 +1,118 @@
-document.addEventListener('DOMContentLoaded', async function() {
-    // Verify faculty is logged in
+// Form submission handler
+async function handleFormSubmission(event) {
+  event.preventDefault();
+  
+  // Get form data
+  const courseCode = document.getElementById('courseCode').value.trim();
+  const courseName = document.getElementById('courseName').value.trim();
+  const creditHours = parseInt(document.getElementById('creditHours').value);
+  const sectionId = document.getElementById('sectionId').value;
+  const description = document.getElementById('description')?.value.trim() || '';
+  const semester = document.getElementById('semester')?.value.trim() || 'Spring 2025';
+  
+  // Log what we're submitting for debugging
+  console.log('Form values:');
+  console.log('- courseCode:', courseCode);
+  console.log('- courseName:', courseName);
+  console.log('- creditHours:', creditHours);
+  console.log('- sectionId:', sectionId);
+  console.log('- description:', description);
+  console.log('- semester:', semester);
+  
+  // Validate required fields
+  const errors = [];
+  if (!courseCode) errors.push('Course Code');
+  if (!courseName) errors.push('Course Name');
+  if (isNaN(creditHours) || creditHours < 1 || creditHours > 3) errors.push('Credit Hours');
+  if (!sectionId) errors.push('Section');
+  if (!semester) errors.push('Semester');
+  
+  if (errors.length > 0) {
+    alert(`Please fill in the following required fields: ${errors.join(', ')}`);
+    return;
+  }
+  
+  // Prepare course data - use exactly the same field names as expected by backend
+  const courseData = {
+    course_code: courseCode,
+    course_name: courseName,
+    credit_hours: creditHours,
+    section_id: sectionId,
+    description: description,
+    semester: semester
+  };
+  
+  console.log('Submitting course data:', courseData);
+  
+  try {
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = '../login.html';
-        return;
+      throw new Error('Not authenticated');
     }
     
-    // Get DOM elements
-    const addCourseForm = document.getElementById('add-course-form');
-    const statusMessage = document.getElementById('status-message');
-    const coursesList = document.getElementById('courses-list');
-    const facultyName = document.getElementById('faculty-name');
-    const logoutBtn = document.getElementById('logout-btn');
-    const logoutLink = document.getElementById('logout-link');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
+    // Send API request
+    const response = await fetch('http://localhost:5000/api/faculty/courses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(courseData)
+    });
     
-    // Setup event listeners
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-            document.querySelector('.dashboard-container').classList.toggle('sidebar-collapsed');
-        });
+    // Log raw response for debugging
+    console.log(`Response status: ${response.status} ${response.statusText}`);
+    
+    const result = await response.json();
+    console.log('Server response:', result);
+    
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to create course');
     }
     
-    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-    if (logoutLink) logoutLink.addEventListener('click', handleLogout);
+    alert('Course created successfully!');
+    // Redirect to courses page
+    window.location.href = './courses.html';
     
-    function handleLogout(e) {
-        if (e) e.preventDefault();
-        localStorage.removeItem('token');
-        localStorage.removeItem('userData');
-        window.location.href = '../login.html';
-    }
+  } catch (error) {
+    console.error('Error creating course:', error);
+    alert('Error creating course: ' + error.message);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if user is logged in
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '../login.html';
+    return;
+  }
+  
+  // Load sections dropdown - hardcode sections A-F
+  const sectionSelect = document.getElementById('sectionId');
+  if (sectionSelect) {
+    const sections = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
     
-    // Display faculty name
-    try {
-        const userData = JSON.parse(localStorage.getItem('userData'));
-        if (userData && userData.name) {
-            facultyName.textContent = userData.name;
-        } else {
-            // Fetch profile if not in localStorage
-            const response = await fetch('/api/faculty/profile', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (response.ok) {
-                const { data } = await response.json();
-                facultyName.textContent = data.name;
-            } else {
-                throw new Error('Failed to load faculty profile');
-            }
-        }
-    } catch (error) {
-        console.error('Error loading faculty name:', error);
-        facultyName.textContent = 'Faculty';
-    }
+    // Clear and populate sections dropdown
+    sectionSelect.innerHTML = '<option value="">Select Section</option>';
     
-    // Load sections for dropdown
-    const sectionDropdown = document.getElementById('section');
-    if (sectionDropdown) {
-        try {
-            const response = await fetch('/api/faculty/sections', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (response.ok) {
-                const { data: sections } = await response.json();
-                
-                // Clear existing options except the first one
-                sectionDropdown.innerHTML = '<option value="">Select Section</option>';
-                
-                // Add section options
-                sections.forEach(section => {
-                    const option = document.createElement('option');
-                    option.value = section.section_id;
-                    option.textContent = section.name;
-                    sectionDropdown.appendChild(option);
-                });
-            } else {
-                throw new Error('Failed to load sections');
-            }
-        } catch (error) {
-            console.error('Error loading sections:', error);
-            showStatus('error', 'Failed to load sections. Please try again later.');
-        }
-    }
-    
-    // Load faculty courses
-    loadFacultyCourses();
-    
-    // Handle form submission
-    if (addCourseForm) {
-        addCourseForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Show "submitting" status
-            showStatus('info', 'Adding course...');
-            
-            const formData = {
-                course_code: document.getElementById('course_code').value,
-                course_name: document.getElementById('course_title').value,
-                credit_hours: parseInt(document.getElementById('credit_hours').value),
-                section_id: document.getElementById('section').value || null,
-                description: document.getElementById('description').value || ''
-            };
-            
-            try {
-                const response = await fetch('/api/faculty/courses', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result.message || 'Failed to create course');
-                }
-                
-                // Show success message
-                showStatus('success', 'Course created successfully!');
-                
-                // Reset the form
-                addCourseForm.reset();
-                
-                // Reload courses list
-                loadFacultyCourses();
-                
-                // Go to courses page after 2 seconds
-                setTimeout(() => {
-                    window.location.href = 'courses.html';
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Error creating course:', error);
-                showStatus('error', `Error: ${error.message}`);
-            }
-        });
-    }
-    
-    // Helper function to show status message
-    function showStatus(type, message) {
-        if (!statusMessage) return;
-        
-        let icon;
-        switch (type) {
-            case 'success': icon = 'check-circle'; break;
-            case 'error': icon = 'times-circle'; break;
-            case 'info': icon = 'info-circle'; break;
-            default: icon = 'info-circle';
-        }
-        
-        statusMessage.innerHTML = `
-            <div class="status-${type}">
-                <i class="fas fa-${icon}"></i>
-                ${message}
-            </div>
-        `;
-        
-        // Clear success/info messages after 5 seconds
-        if (type !== 'error') {
-            setTimeout(() => {
-                statusMessage.innerHTML = '';
-            }, 5000);
-        }
-    }
-    
-    // Load faculty courses
-    async function loadFacultyCourses() {
-        if (!coursesList) return;
-        
-        try {
-            // Show loading state
-            coursesList.innerHTML = '<tr><td colspan="5" class="text-center">Loading courses...</td></tr>';
-            
-            const response = await fetch('/api/faculty/courses', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error('Failed to load courses');
-            }
-            
-            const { data: courses } = await response.json();
-            
-            if (courses.length === 0) {
-                coursesList.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center">No courses found. Add your first course above!</td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            coursesList.innerHTML = courses.map(course => `
-                <tr>
-                    <td>${course.course_code}</td>
-                    <td>${course.course_name}</td>
-                    <td>${course.section_name || 'N/A'}</td>
-                    <td>${course.credit_hours}</td>
-                    <td>${course.student_count || 0}</td>
-                </tr>
-            `).join('');
-            
-        } catch (error) {
-            console.error('Error loading courses:', error);
-            coursesList.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center">Error: ${error.message}</td>
-                </tr>
-            `;
-        }
-    }
+    sections.forEach(section => {
+      const option = document.createElement('option');
+      option.value = section;
+      option.textContent = section;
+      sectionSelect.appendChild(option);
+    });
+  }
+  
+  // Set default semester if the field exists
+  const semesterField = document.getElementById('semester');
+  if (semesterField && !semesterField.value) {
+    semesterField.value = 'Spring 2025';
+  }
+  
+  // Handle form submission
+  const courseForm = document.getElementById('courseForm');
+  if (courseForm) {
+    courseForm.addEventListener('submit', handleFormSubmission);
+  }
 });

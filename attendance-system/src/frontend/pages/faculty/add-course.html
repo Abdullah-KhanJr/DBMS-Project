@@ -92,12 +92,48 @@
                         <form id="add-course-form">
                             <div class="form-group">
                                 <label for="course_code">Course Code*</label>
-                                <input type="text" id="course_code" name="course_code" placeholder="e.g. CS101" required>
+                                <select id="course_code" name="course_code" required>
+                                    <option value="">Select Course Code</option>
+                                    <option value="ES111">ES111</option>
+                                    <option value="ES205">ES205</option>
+                                    <option value="HM211">HM211</option>
+                                    <option value="SE201">SE201</option>
+                                    <option value="SE211">SE211</option>
+                                    <option value="CS232">CS232</option>
+                                    <option value="CS101">CS101</option>
+                                    <option value="CS102">CS102</option>
+                                    <option value="CS231">CS231</option>
+                                    <option value="CS221">CS221</option>
+                                    <option value="CE222">CE222</option>
+                                    <option value="CE221">CE221</option>
+                                    <option value="HM101">HM101</option>
+                                    <option value="HM102">HM102</option>
+                                    <option value="MT101">MT101</option>
+                                    <option value="MT102">MT102</option>
+                                </select>
                             </div>
                             
                             <div class="form-group">
                                 <label for="course_title">Course Title*</label>
-                                <input type="text" id="course_title" name="course_title" placeholder="e.g. Introduction to Programming" required>
+                                <select id="course_title" name="course_title" required>
+                                    <option value="">Select Course Title</option>
+                                    <option value="Probability and Statistics">Probability and Statistics</option>
+                                    <option value="Advance Linear Algebra">Advance Linear Algebra</option>
+                                    <option value="Pakistan Studies and Islamyat">Pakistan Studies and Islamyat</option>
+                                    <option value="Introduction to Software Engineering">Introduction to Software Engineering</option>
+                                    <option value="Requirement Engineering">Requirement Engineering</option>
+                                    <option value="Database Management System">Database Management System</option>
+                                    <option value="Introduction to Programming">Introduction to Programming</option>
+                                    <option value="Object Oriented Programming">Object Oriented Programming</option>
+                                    <option value="Discrete Math">Discrete Math</option>
+                                    <option value="Data Structures and Algorithms">Data Structures and Algorithms</option>
+                                    <option value="Computer Organization and Assembly Language">Computer Organization and Assembly Language</option>
+                                    <option value="Digital Logic Design">Digital Logic Design</option>
+                                    <option value="Communication Skills">Communication Skills</option>
+                                    <option value="Advance Communication">Advance Communication</option>
+                                    <option value="Calculus 1">Calculus 1</option>
+                                    <option value="Linear Algebra">Linear Algebra</option>
+                                </select>
                             </div>
                             
                             <div class="form-group">
@@ -107,6 +143,23 @@
                                     <option value="Fall 2024">Fall 2024</option>
                                     <option value="Spring 2025">Spring 2025</option>
                                     <option value="Summer 2025">Summer 2025</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="section">Section*</label>
+                                <select id="section" name="section" required>
+                                    <option value="">Select Section</option>
+                                    <option value="A">Section A</option>
+                                    <option value="B">Section B</option>
+                                    <option value="C">Section C</option>
+                                    <option value="D">Section D</option>
+                                    <option value="E">Section E</option>
+                                    <option value="F">Section F</option>
+                                    <option value="G">Section G</option>
+                                    <option value="H">Section H</option>
+                                    <option value="I">Section I</option>
+                                    <option value="J">Section J</option>
                                 </select>
                             </div>
                             
@@ -151,7 +204,7 @@
                                         <tr>
                                             <th>Course Code</th>
                                             <th>Title</th>
-                                            <th>Semester</th>
+                                            <th>Section</th>
                                             <th>Credit Hours</th>
                                             <th>Students Enrolled</th>
                                         </tr>
