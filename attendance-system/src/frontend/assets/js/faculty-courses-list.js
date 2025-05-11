@@ -52,6 +52,29 @@ document.addEventListener('DOMContentLoaded', async function() {
         const userData = JSON.parse(localStorage.getItem('userData'));
         if (userData && userData.name && facultyName) {
             facultyName.textContent = userData.name;
+        } else {
+            // Fetch faculty data from API if not in localStorage
+            try {
+                const response = await fetch('/api/faculty/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const { data } = await response.json();
+                    if (facultyName) facultyName.textContent = data.name;
+                    
+                    // Update localStorage
+                    if (userData) {
+                        userData.name = data.name;
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching faculty profile:', error);
+                if (facultyName) facultyName.textContent = "Faculty";
+            }
         }
     } catch (error) {
         console.error('Error getting user data:', error);
@@ -61,7 +84,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load faculty courses
     if (courseListElement) {
         try {
-            const response = await fetch('http://localhost:5000/api/faculty/courses', {
+            // Show loading indicator
+            courseListElement.innerHTML = '<div class="loading-spinner">Loading courses...</div>';
+            
+            const response = await fetch('/api/faculty/courses', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -73,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 throw new Error('Failed to fetch courses');
             }
             
-            const courses = await response.json();
+            const { data: courses } = await response.json();
             
             if (courses.length === 0) {
                 courseListElement.innerHTML = `
@@ -108,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                         </div>
                         <div class="course-info">
                             <p><i class="fas fa-users"></i> ${course.student_count || 0} Students</p>
-                            <p><i class="fas fa-layer-group"></i> Section ${course.section_name}</p>
+                            <p><i class="fas fa-layer-group"></i> Section ${course.section_name || 'N/A'}</p>
                             <p><i class="fas fa-clock"></i> ${course.credit_hours} Credit Hours</p>
                         </div>
                         <div class="course-attendance">
@@ -119,7 +145,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                         </div>
                         <div class="course-actions">
                             <a href="mark-attendance.html?id=${course.course_id}" class="btn-small">Mark Attendance</a>
-                            <a href="course-details.html?id=${course.course_id}" class="btn-small" style="margin-left: 5px;">View Details</a>
+                            <a href="attendance-records.html?id=${course.course_id}" class="btn-small" style="margin-left: 5px;">View Records</a>
+                            <a href="manage-students.html?id=${course.course_id}" class="btn-small" style="margin-left: 5px;">Manage Students</a>
                         </div>
                     </div>
                 `;

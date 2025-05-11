@@ -6,114 +6,191 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
     
-    // Display faculty name
+    // Get DOM elements
+    const addCourseForm = document.getElementById('add-course-form');
+    const statusMessage = document.getElementById('status-message');
+    const coursesList = document.getElementById('courses-list');
     const facultyName = document.getElementById('faculty-name');
-    try {
-        const response = await fetch('/api/faculty/profile', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+    const logoutBtn = document.getElementById('logout-btn');
+    const logoutLink = document.getElementById('logout-link');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    
+    // Setup event listeners
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            document.querySelector('.dashboard-container').classList.toggle('sidebar-collapsed');
         });
-        
-        if (response.ok) {
-            const faculty = await response.json();
-            facultyName.textContent = `${faculty.first_name} ${faculty.last_name}`;
+    }
+    
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    if (logoutLink) logoutLink.addEventListener('click', handleLogout);
+    
+    function handleLogout(e) {
+        if (e) e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        window.location.href = '../login.html';
+    }
+    
+    // Display faculty name
+    try {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (userData && userData.name) {
+            facultyName.textContent = userData.name;
         } else {
-            throw new Error('Failed to load faculty profile');
+            // Fetch profile if not in localStorage
+            const response = await fetch('/api/faculty/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const { data } = await response.json();
+                facultyName.textContent = data.name;
+            } else {
+                throw new Error('Failed to load faculty profile');
+            }
         }
     } catch (error) {
-        console.error('Error fetching faculty profile:', error);
+        console.error('Error loading faculty name:', error);
         facultyName.textContent = 'Faculty';
+    }
+    
+    // Load sections for dropdown
+    const sectionDropdown = document.getElementById('section');
+    if (sectionDropdown) {
+        try {
+            const response = await fetch('/api/faculty/sections', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const { data: sections } = await response.json();
+                
+                // Clear existing options except the first one
+                sectionDropdown.innerHTML = '<option value="">Select Section</option>';
+                
+                // Add section options
+                sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section.section_id;
+                    option.textContent = section.name;
+                    sectionDropdown.appendChild(option);
+                });
+            } else {
+                throw new Error('Failed to load sections');
+            }
+        } catch (error) {
+            console.error('Error loading sections:', error);
+            showStatus('error', 'Failed to load sections. Please try again later.');
+        }
     }
     
     // Load faculty courses
     loadFacultyCourses();
     
     // Handle form submission
-    const addCourseForm = document.getElementById('add-course-form');
-    const statusMessage = document.getElementById('status-message');
-    
-    addCourseForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = {
-            course_code: document.getElementById('course_code').value,
-            course_title: document.getElementById('course_title').value,
-            semester: document.getElementById('semester').value,
-            credit_hours: document.getElementById('credit_hours').value,
-            description: document.getElementById('description').value
-        };
-        
-        try {
-            statusMessage.textContent = 'Adding course...';
-            statusMessage.className = 'status-message info';
+    if (addCourseForm) {
+        addCourseForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            const response = await fetch('/api/faculty/courses', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
+            // Show "submitting" status
+            showStatus('info', 'Adding course...');
             
-            if (response.ok) {
+            const formData = {
+                course_code: document.getElementById('course_code').value,
+                course_name: document.getElementById('course_title').value,
+                credit_hours: parseInt(document.getElementById('credit_hours').value),
+                section_id: document.getElementById('section').value || null,
+                description: document.getElementById('description').value || ''
+            };
+            
+            try {
+                const response = await fetch('/api/faculty/courses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
                 const result = await response.json();
-                statusMessage.textContent = 'Course added successfully!';
-                statusMessage.className = 'status-message success';
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'Failed to create course');
+                }
+                
+                // Show success message
+                showStatus('success', 'Course created successfully!');
+                
+                // Reset the form
                 addCourseForm.reset();
                 
-                // Reload the courses list
+                // Reload courses list
                 loadFacultyCourses();
                 
-                // Clear status message after 3 seconds
+                // Go to courses page after 2 seconds
                 setTimeout(() => {
-                    statusMessage.textContent = '';
-                    statusMessage.className = 'status-message';
-                }, 3000);
-            } else {
-                const error = await response.json();
-                throw new Error(error.message || 'Failed to add course');
-            }
-        } catch (error) {
-            console.error('Error adding course:', error);
-            statusMessage.textContent = `Error: ${error.message}`;
-            statusMessage.className = 'status-message error';
-        }
-    });
-    
-    // Handle logout
-    document.getElementById('logout-btn').addEventListener('click', function() {
-        localStorage.removeItem('token');
-        window.location.href = '../login.html';
-    });
-    
-    document.getElementById('logout-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        localStorage.removeItem('token');
-        window.location.href = '../login.html';
-    });
-    
-    // Handle sidebar toggle
-    document.getElementById('sidebar-toggle').addEventListener('click', function() {
-        document.querySelector('.dashboard-container').classList.toggle('sidebar-collapsed');
-    });
-});
-
-// Load faculty courses
-async function loadFacultyCourses() {
-    const token = localStorage.getItem('token');
-    const coursesList = document.getElementById('courses-list');
-    
-    try {
-        const response = await fetch('/api/faculty/courses', {
-            headers: {
-                'Authorization': `Bearer ${token}`
+                    window.location.href = 'courses.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error creating course:', error);
+                showStatus('error', `Error: ${error.message}`);
             }
         });
+    }
+    
+    // Helper function to show status message
+    function showStatus(type, message) {
+        if (!statusMessage) return;
         
-        if (response.ok) {
-            const courses = await response.json();
+        let icon;
+        switch (type) {
+            case 'success': icon = 'check-circle'; break;
+            case 'error': icon = 'times-circle'; break;
+            case 'info': icon = 'info-circle'; break;
+            default: icon = 'info-circle';
+        }
+        
+        statusMessage.innerHTML = `
+            <div class="status-${type}">
+                <i class="fas fa-${icon}"></i>
+                ${message}
+            </div>
+        `;
+        
+        // Clear success/info messages after 5 seconds
+        if (type !== 'error') {
+            setTimeout(() => {
+                statusMessage.innerHTML = '';
+            }, 5000);
+        }
+    }
+    
+    // Load faculty courses
+    async function loadFacultyCourses() {
+        if (!coursesList) return;
+        
+        try {
+            // Show loading state
+            coursesList.innerHTML = '<tr><td colspan="5" class="text-center">Loading courses...</td></tr>';
+            
+            const response = await fetch('/api/faculty/courses', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to load courses');
+            }
+            
+            const { data: courses } = await response.json();
             
             if (courses.length === 0) {
                 coursesList.innerHTML = `
@@ -127,22 +204,20 @@ async function loadFacultyCourses() {
             coursesList.innerHTML = courses.map(course => `
                 <tr>
                     <td>${course.course_code}</td>
-                    <td>${course.course_title}</td>
-                    <td>${course.semester}</td>
+                    <td>${course.course_name}</td>
+                    <td>${course.section_name || 'N/A'}</td>
                     <td>${course.credit_hours}</td>
-                    <td>${course.enrolled_count || 0}</td>
+                    <td>${course.student_count || 0}</td>
                 </tr>
             `).join('');
             
-        } else {
-            throw new Error('Failed to load courses');
+        } catch (error) {
+            console.error('Error loading courses:', error);
+            coursesList.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center">Error: ${error.message}</td>
+                </tr>
+            `;
         }
-    } catch (error) {
-        console.error('Error fetching courses:', error);
-        coursesList.innerHTML = `
-            <tr>
-                <td colspan="5" class="text-center">Error loading courses. Please try again.</td>
-            </tr>
-        `;
     }
-}
+});

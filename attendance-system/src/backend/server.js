@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
+const facultyRoutes = require('./routes/facultyRoutes');
 
 // Load environment variables
 dotenv.config();

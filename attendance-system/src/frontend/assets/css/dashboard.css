@@ -655,3 +655,552 @@
     width: 95%;
   }
 }
+
+/* Faculty specific styles - Add this at the end of your dashboard.css file */
+
+/* Manage attendance page styles */
+.attendance-form {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.attendance-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-medium);
+  font-weight: 500;
+}
+
+.attendance-form select,
+.attendance-form input,
+.attendance-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.attendance-form select:focus,
+.attendance-form input:focus,
+.attendance-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.attendance-form button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.attendance-form button:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Attendance records styles */
+#attendance-records {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+#attendance-records h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-dark);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+/* Form info styles */
+.form-info {
+  background-color: var(--accent-color);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.info-header {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.info-item {
+  margin: 0.25rem 0;
+  color: var(--text-medium);
+}
+
+/* Status message styles */
+.status-message {
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  display: none;
+}
+
+.status-success {
+  background-color: rgba(72, 187, 120, 0.1);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+  display: block;
+}
+
+.status-error {
+  background-color: rgba(229, 62, 62, 0.1);
+  color: var(--danger-color);
+  border: 1px solid var(--danger-color);
+  display: block;
+}
+
+/* Form actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.form-actions button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary {
+  background-color: var(--bg-color);
+  color: var(--text-medium);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--border-color);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--text-medium);
+}
+
+/* Faculty course card with consistent styling */
+.course-card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: var(--transition);
+  background-color: white;
+}
+
+.course-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.course-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--accent-color);
+}
+
+/* Quick action buttons for faculty */
+.action-btns {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+/* Responsive adjustments for faculty pages */
+@media screen and (max-width: 768px) {
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .action-btns {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .action-btns .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Faculty Pages Specific Styles - Add this to the end of your dashboard.css file */
+
+/* Card layout enhancements */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.card-header {
+  background-color: var(--accent-color, #f5f7fa);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: var(--text-dark, #2d3748);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Session info styling */
+.session-info {
+  font-size: 0.9rem;
+  color: var(--text-medium, #4a5568);
+  margin-top: 0.25rem;
+}
+
+/* Form controls */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-medium, #4a5568);
+  font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #4299e1);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+/* Table styles for faculty pages */
+.table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background-color: var(--accent-color, #f5f7fa);
+  color: var(--text-dark, #2d3748);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--border-color, #e2e8f0);
+}
+
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-medium, #4a5568);
+}
+
+.data-table tbody tr:hover {
+  background-color: rgba(66, 153, 225, 0.05);
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Buttons for faculty actions */
+.btn-primary, 
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color, #4299e1);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color, #3182ce);
+}
+
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: var(--text-medium, #4a5568);
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Actions layout */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  justify-content: flex-end;
+}
+
+.attendance-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+/* Status message styling */
+.status-message {
+  padding: 0.85rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+  display: none;
+}
+
+.status-success {
+  background-color: rgba(72, 187, 120, 0.1);
+  color: #38a169;
+  border: 1px solid #38a169;
+  display: block;
+}
+
+.status-error {
+  background-color: rgba(229, 62, 62, 0.1);
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
+  display: block;
+}
+
+/* Student information box */
+.form-info {
+  background-color: var(--accent-color, #f5f7fa);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.info-header {
+  font-weight: 600;
+  color: var(--primary-color, #4299e1);
+  margin-bottom: 0.5rem;
+}
+
+.info-item {
+  margin: 0.25rem 0;
+  color: var(--text-medium, #4a5568);
+}
+
+/* Attendance marking section */
+#attendance-section {
+  margin-top: 2rem;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .attendance-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .attendance-actions button {
+    width: 100%;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .session-info {
+    margin-top: 0.5rem;
+  }
+}
+
+/* Append these styles to the existing dashboard.css file */
+
+/* Attendance Records Specific Styles */
+.header-with-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.attendance-course-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.attendance-course-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.text-success {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.text-warning {
+    color: var(--warning-color);
+    font-weight: 600;
+}
+
+.text-danger {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 900px;
+    box-shadow: var(--shadow-lg);
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.modal-close {
+    color: var(--text-light);
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: var(--text-dark);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.student-info {
+    background-color: var(--bg-light);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem 1rem;
+}
+
+.student-info p {
+    margin: 0.25rem 0;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

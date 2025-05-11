@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Records | Faculty</title>
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Attendance System</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="dashboard.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="courses.html">
+                        <i class="fas fa-book"></i>
+                        <span>My Courses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="add-course.html">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Course</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="manage-students.html">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Manage Students</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="mark-attendance.html">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Mark Attendance</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="attendance-records.html">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Attendance Records</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="../login.html" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Attendance Records</h2>
+                </div>
+                <div class="navbar-right">
+                    <div class="user-info">
+                        <span id="faculty-name">Loading...</span>
+                        <div class="profile-icon">
+                            <i class="fas fa-user-circle"></i>
+                            <div class="dropdown-menu">
+                                <a href="profile.html">Profile</a>
+                                <a href="#" id="logout-link">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="dashboard-header">
+                    <h1>Attendance Records</h1>
+                    <p>View and manage attendance records for your courses</p>
+                </div>
+                
+                <div class="courses-section">
+                    <div class="section-header">
+                        <h2>Course Attendance Summary</h2>
+                    </div>
+                    <div class="course-list" id="course-attendance-summary">
+                        <!-- Course attendance summary will be populated here via JavaScript -->
+                        <div class="loading-spinner">Loading courses...</div>
+                    </div>
+                </div>
+
+                <!-- Student Records Section - Initially Hidden -->
+                <div id="student-attendance-section" class="courses-section" style="margin-top: 2rem; display: none;">
+                    <div class="section-header">
+                        <div class="header-with-actions">
+                            <h2 id="selected-course-title">Student Attendance Records</h2>
+                            <button id="back-to-summary" class="btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Summary
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="header-with-actions">
+                                <h3>Attendance Details</h3>
+                                <div class="filter-controls">
+                                    <select id="status-filter" class="form-control">
+                                        <option value="all">All Statuses</option>
+                                        <option value="good">Good Standing (≥75%)</option>
+                                        <option value="warning">Warning (60-75%)</option>
+                                        <option value="critical">Critical (<60%)</option>
+                                    </select>
+                                    <button id="export-csv" class="btn-secondary">
+                                        <i class="fas fa-file-export"></i> Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Registration No.</th>
+                                            <th>Name</th>
+                                            <th>Total Sessions</th>
+                                            <th>Present</th>
+                                            <th>Absent</th>
+                                            <th>Percentage</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="student-attendance-list">
+                                        <!-- Will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Individual Student Detail Modal -->
+                <div id="student-detail-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="student-detail-title">Student Attendance Detail</h3>
+                            <span class="modal-close">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div class="student-info">
+                                <p><strong>Registration No.:</strong> <span id="detail-reg-number"></span></p>
+                                <p><strong>Name:</strong> <span id="detail-name"></span></p>
+                                <p><strong>Course:</strong> <span id="detail-course"></span></p>
+                                <p><strong>Overall Attendance:</strong> <span id="detail-percentage"></span></p>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Session</th>
+                                            <th>Status</th>
+                                            <th>Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="student-session-list">
+                                        <!-- Will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/faculty-attendance-records.js"></script>
+</body>
+</html>
