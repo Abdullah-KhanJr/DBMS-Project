@@ -15,17 +15,10 @@
             <div class="sidebar-header">
                 <h3>Attendance System</h3>
             </div>
-            <ul class="sidebar-menu">
-                <li>
+            <ul class="sidebar-menu">                <li>
                     <a href="dashboard.html">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="courses.html">
-                        <i class="fas fa-book"></i>
-                        <span>My Courses</span>
                     </a>
                 </li>
                 <li class="active">
@@ -178,6 +171,26 @@
                             </div>
 
                             <div id="status-message" class="status-message"></div>
+                            <style>
+                                .status-message {
+                                    margin: 10px 0;
+                                    padding: 10px;
+                                    border-radius: 4px;
+                                    display: none;
+                                }
+                                .status-message.error {
+                                    background-color: #ffebee;
+                                    color: #c62828;
+                                    border: 1px solid #ef9a9a;
+                                    display: block;
+                                }
+                                .status-message.success {
+                                    background-color: #e8f5e9;
+                                    color: #2e7d32;
+                                    border: 1px solid #a5d6a7;
+                                    display: block;
+                                }
+                            </style>
                             
                             <div class="form-actions">
                                 <button type="submit" class="btn-primary">
@@ -187,50 +200,61 @@
                                     <i class="fas fa-times-circle"></i> Reset
                                 </button>
                             </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="section" style="margin-top: 2rem;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>My Courses</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Course Code</th>
-                                            <th>Title</th>
-                                            <th>Section</th>
-                                            <th>Credit Hours</th>
-                                            <th>Students Enrolled</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="courses-list">
-                                        <!-- Will be filled by JavaScript -->
-                                        <tr>
-                                            <td colspan="5" class="text-center">Loading courses...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                        </form>                </div>
                 </div>
             </div>
         </div>
-    </div>    <script src="../../assets/js/auth-utils.js"></script>
+    </div>    <!-- Authentication and utility scripts should be loaded first -->
+    <script src="../../assets/js/auth-utils.js"></script>
     <script src="../../assets/js/logout.js"></script>
+    <script src="../../assets/js/faculty-common.js"></script>
+    
+    <!-- Initialize faculty info before loading page content -->
     <script type="text/javascript">
-        // Validate that user is faculty before loading page
-        document.addEventListener('DOMContentLoaded', function() {
+        // Initialize function to retrieve and setup faculty data
+        async function initializeFacultyData() {
+            // Validate user is faculty
             if (!validateUserAuth('faculty')) {
-                return; // Stop execution if validation fails
+                return false;
+            }
+            
+            try {
+                // Pre-fetch faculty ID if the function exists
+                if (typeof getFacultyId === 'function') {
+                    console.log('Pre-fetching faculty ID...');
+                    await getFacultyId();
+                }
+                return true;
+            } catch (error) {
+                console.error('Error initializing faculty data:', error);
+                return false;
+            }
+        }
+        
+        // Run initialization on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFacultyData().then(success => {
+                if (!success) {
+                    console.error('Failed to initialize faculty data');
+                }
+            });
+        });
+    </script>
+    
+    <!-- Page-specific scripts -->
+    <script src="../../assets/js/add-course.js"></script>
+    
+    <!-- Error handling -->
+    <script>
+        window.addEventListener('error', function(event) {
+            console.error('Global error caught:', event.error);
+            // Show error in status message area if available
+            const statusMessage = document.getElementById('status-message');
+            if (statusMessage) {
+                statusMessage.classList.add('error');
+                statusMessage.textContent = 'Error: ' + (event.error?.message || 'Unknown error occurred');
             }
         });
     </script>
-    <script src="../../assets/js/add-course.js"></script>
 </body>
 </html>

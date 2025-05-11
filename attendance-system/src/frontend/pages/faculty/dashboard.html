@@ -23,12 +23,6 @@
                     </a>
                 </li>
                 <li>
-                    <a href="courses.html">
-                        <i class="fas fa-book"></i>
-                        <span>My Courses</span>
-                    </a>
-                </li>
-                <li>
                     <a href="add-course.html">
                         <i class="fas fa-plus-circle"></i>
                         <span>Add Course</span>
@@ -127,51 +121,6 @@
                         <!-- Courses will be populated here via JavaScript -->
                     </div>
                 </div>
-                
-                <div class="courses-section" style="margin-top: 2rem;">
-                    <div class="section-header">
-                        <h2>Recent Attendance Records</h2>
-                    </div>
-                    <div class="attendance-table-container">
-                        <table class="attendance-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Course</th>
-                                    <th>Present</th>
-                                    <th>Absent</th>
-                                    <th>Percentage</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-attendance">
-                                <!-- Will be populated by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="management-section" style="margin-top: 2rem;">
-                    <div class="section-header">
-                        <h2>Quick Actions</h2>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                        <a href="attendance-records.html" class="btn-primary" style="text-align: center;">
-                            <i class="fas fa-clipboard-list"></i> View Records
-                        </a>
-                        <a href="courses.html" class="btn-primary" style="text-align: center;">
-                            <i class="fas fa-book"></i> Manage Courses
-                        </a>
-                        <a href="add-course.html" class="btn-primary" style="text-align: center;">
-                            <i class="fas fa-plus-circle"></i> Add Course
-                        </a>
-                        <a href="manage-students.html" class="btn-primary" style="text-align: center;">
-                            <i class="fas fa-user-graduate"></i> Manage Students
-                        </a>
-                        <a href="mark-attendance.html" class="btn-primary" style="text-align: center;">
-                            <i class="fas fa-check-circle"></i> Mark Attendance
-                        </a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -179,6 +128,7 @@
     <!-- Authentication and utility scripts -->
     <script src="../../assets/js/auth-utils.js"></script>
     <script src="../../assets/js/logout.js"></script>
+    <script src="../../assets/js/faculty-common.js"></script>
     
     <!-- Load dashboard scripts -->
     <script src="../../assets/js/faculty-dashboard.js"></script>

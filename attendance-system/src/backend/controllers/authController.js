@@ -159,41 +159,19 @@ exports.login = async (req, res) => {
             }
         }
         
-        // Create token payload with unique session identifier
-        const sessionId = require('crypto').randomBytes(16).toString('hex');
-        
-        // Generate JWT token with shorter expiration time
+        // Generate JWT token
         const token = jwt.sign(
             { 
                 userId: user.user_id, 
-                role: user.user_type,
-                sessionId: sessionId,
-                timestamp: Date.now() // Add timestamp for extra token uniqueness
+                role: user.user_type 
             },
             process.env.JWT_SECRET || 'your_very_secure_secret_key',
-            { expiresIn: process.env.JWT_EXPIRES_IN || '8h' } // Reduced token lifetime
+            { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
         );
         
-        // Set HTTP-only cookies for better security
-        res.cookie('authToken', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Set secure in production
-            maxAge: 8 * 60 * 60 * 1000, // 8 hours in milliseconds
-            sameSite: 'strict'
-        });
-        
-        // Set cache-control headers to prevent caching of auth response
-        res.set({
-            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        });
-        
-        // Send response
         res.status(200).json({
             success: true,
             token,
-            tokenExpiry: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // Show when token expires
             user: {
                 userId: user.user_id,
                 name: user.name,
@@ -227,133 +205,6 @@ exports.checkAdminExists = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to check admin existence',
-            error: error.message
-        });
-    }
-};
-
-// Handle user logout
-exports.logout = async (req, res) => {
-    try {
-        // Clear HTTP-only cookie if it exists
-        res.clearCookie('authToken');
-        
-        // Set cache control headers to ensure fresh state after logout
-        res.set({
-            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        });
-        
-        // Record logout action in database if needed
-        // This could include logging the logout time or invalidating tokens server-side
-        try {
-            const userId = req.user?.userId; // In case we have user data from auth middleware
-            if (userId) {
-                // Optional: record logout in activity log
-                // await db.query('INSERT INTO user_activity_log (user_id, action, timestamp) VALUES ($1, $2, NOW())', 
-                //    [userId, 'LOGOUT']);
-            }
-        } catch (logError) {
-            console.warn('Failed to log logout activity:', logError);
-            // Non-critical error, continue with logout
-        }
-        
-        res.status(200).json({
-            success: true,
-            message: 'Logged out successfully'
-        });
-    } catch (error) {
-        console.error('Logout error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Logout process encountered an error',
-            error: error.message
-        });
-    }
-};
-
-// Token refresh endpoint
-exports.refreshToken = async (req, res) => {
-    try {
-        // Get the current token from authorization header
-        const authHeader = req.header('Authorization');
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({
-                success: false,
-                message: 'No token provided'
-            });
-        }
-        
-        const token = authHeader.replace('Bearer ', '');
-        
-        // Verify the token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_very_secure_secret_key');
-        
-        // Get user information
-        const userResult = await db.query('SELECT * FROM users WHERE user_id = $1', [decoded.userId]);
-        
-        if (userResult.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-        
-        const user = userResult.rows[0];
-        
-        // Create a new session ID
-        const sessionId = require('crypto').randomBytes(16).toString('hex');
-        
-        // Generate a new token with extended expiration
-        const newToken = jwt.sign(
-            {
-                userId: user.user_id,
-                role: user.user_type,
-                sessionId: sessionId,
-                timestamp: Date.now()
-            },
-            process.env.JWT_SECRET || 'your_very_secure_secret_key',
-            { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
-        );
-        
-        // Set new HTTP-only cookie
-        res.cookie('authToken', newToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 8 * 60 * 60 * 1000,
-            sameSite: 'strict'
-        });
-        
-        // Set cache control headers
-        res.set({
-            'Cache-Control': 'no-store, no-cache, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        });
-        
-        // Send the new token
-        res.status(200).json({
-            success: true,
-            token: newToken,
-            tokenExpiry: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
-            message: 'Token refreshed successfully'
-        });
-        
-    } catch (error) {
-        console.error('Token refresh error:', error);
-        
-        // If token verification fails, send 401
-        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid or expired token'
-            });
-        }
-        
-        res.status(500).json({
-            success: false,
-            message: 'Token refresh failed',
             error: error.message
         });
     }

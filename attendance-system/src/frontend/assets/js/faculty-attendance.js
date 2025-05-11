@@ -1,30 +1,12 @@
-document.addEventListener('DOMContentLoaded', async function() {
-    // Verify faculty is logged in
+document.addEventListener('DOMContentLoaded', async function() {    // Verify faculty is logged in
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '../login.html';
         return;
     }
     
-    // Display faculty name
-    const facultyName = document.getElementById('faculty-name');
-    try {
-        const response = await fetch('/api/faculty/profile', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (response.ok) {
-            const faculty = await response.json();
-            facultyName.textContent = `${faculty.first_name} ${faculty.last_name}`;
-        } else {
-            throw new Error('Failed to load faculty profile');
-        }
-    } catch (error) {
-        console.error('Error fetching faculty profile:', error);
-        facultyName.textContent = 'Faculty';
-    }
+    // Display faculty name using common function
+    displayFacultyName();
     
     // Load courses for dropdown
     await loadCourses();
@@ -38,8 +20,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Handle mark all present button
     document.getElementById('mark-all-present').addEventListener('click', markAllPresent);
-    
-    // Handle mark attendance form submission
+      // Handle mark attendance form submission
     const markAttendanceForm = document.getElementById('mark-attendance-form');
     markAttendanceForm.addEventListener('submit', saveAttendance);
     
@@ -47,21 +28,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('session_date').value = today;
     
-    // Handle logout
-    document.getElementById('logout-btn').addEventListener('click', function() {
-        localStorage.removeItem('token');
-        window.location.href = '../login.html';
-    });
-    
-    document.getElementById('logout-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        localStorage.removeItem('token');
-        window.location.href = '../login.html';
-    });
-    
     // Handle sidebar toggle
     document.getElementById('sidebar-toggle').addEventListener('click', function() {
-        document.querySelector('.dashboard-container').classList.toggle('sidebar-collapsed');
+        document.querySelector('.sidebar').classList.toggle('active');
     });
 });
 

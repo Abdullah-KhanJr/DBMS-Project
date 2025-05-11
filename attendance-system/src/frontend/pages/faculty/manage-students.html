@@ -14,17 +14,10 @@
             <div class="sidebar-header">
                 <h3>Attendance System</h3>
             </div>
-            <ul class="sidebar-menu">
-                <li>
+            <ul class="sidebar-menu">                <li>
                     <a href="dashboard.html">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="courses.html">
-                        <i class="fas fa-book"></i>
-                        <span>My Courses</span>
                     </a>
                 </li>
                 <li>
@@ -119,47 +112,11 @@
                             </div>
                         </form>
                     </div>
-                </div>
-
-                <div class="section" style="margin-top: 2rem;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Course Enrollments</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="filter-course">Filter by Course</label>
-                                <select id="filter-course" name="filter-course">
-                                    <option value="">All Courses</option>
-                                    <!-- Will be populated by JavaScript -->
-                                </select>
-                            </div>
-                            
-                            <div class="table-container">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Registration Number</th>
-                                            <th>Student Name</th>
-                                            <th>Course</th>
-                                            <th>Enrollment Date</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="enrollments-list">
-                                        <!-- Will be populated by JavaScript -->
-                                        <tr>
-                                            <td colspan="5" class="text-center">Loading enrollments...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </div>                <!-- Course enrollment section removed as per requirements -->
             </div>
         </div>
     </div>    <script src="../../assets/js/logout.js"></script>
+    <script src="../../assets/js/faculty-common.js"></script>
     <script src="../../assets/js/manage-students.js"></script>
 </body>
 </html>

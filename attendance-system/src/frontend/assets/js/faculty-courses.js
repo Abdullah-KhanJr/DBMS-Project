@@ -135,10 +135,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
                 // Reset the form
                 addCourseForm.reset();
-                
-                // Redirect to courses page after 2 seconds
+                  // Redirect to dashboard page after 2 seconds
                 setTimeout(() => {
-                    window.location.href = 'courses.html';
+                    window.location.href = 'dashboard.html';
                 }, 2000);
                 
             } catch (error) {

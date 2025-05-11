@@ -1,0 +1,154 @@
+
+/* Course attendance cards */
+.attendance-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.attendance-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-counts {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.count-item {
+    flex: 1;
+    padding: 8px 5px;
+    border-radius: 4px;
+}
+
+.count-item.present {
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.count-item.absent {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+.count-item.total {
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+.count-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.count-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Status indicators */
+.status-good {
+    color: var(--success-color);
+    font-weight: 500;
+}
+
+.status-warning {
+    color: var(--warning-color);
+    font-weight: 500;
+}
+
+.status-critical {
+    color: var(--danger-color);
+    font-weight: 500;
+}
+
+.status-present {
+    color: var(--success-color);
+    font-weight: 500;
+}
+
+.status-absent {
+    color: var(--danger-color);
+    font-weight: 500;
+}
+
+.status-leave {
+    color: var(--warning-color);
+    font-weight: 500;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 80%;
+    max-width: 900px;
+    animation: modalFadeIn 0.3s;
+}
+
+.modal-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-close {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: #ddd;
+}
+
+.student-info {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+/* Animation */
+@keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(-50px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .attendance-counts {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 5% auto;
+    }
+}

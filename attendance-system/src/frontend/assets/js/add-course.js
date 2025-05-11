@@ -1,4 +1,4 @@
-// Form submission handler
+// Form submission handler - async function to support await
 async function handleFormSubmission(event) {
   event.preventDefault();
   
@@ -30,6 +30,37 @@ async function handleFormSubmission(event) {
     alert(`Please fill in the following required fields: ${errors.join(', ')}`);
     return;
   }
+  // Use the getFacultyId helper if available, or fallback to localStorage lookup
+  let facultyId = null;
+  
+  if (typeof getFacultyId === 'function') {
+    try {
+      // Wait for the async function to complete
+      facultyId = await getFacultyId();
+      console.log('Retrieved faculty ID using helper function:', facultyId);
+    } catch (error) {
+      console.error('Error getting faculty ID with helper function:', error);
+    }
+  }
+  
+  // Fallback to direct localStorage access if helper function fails or isn't available
+  if (!facultyId) {
+    try {
+      const userDataString = localStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        
+        // Check all possible places where faculty ID might be stored
+        facultyId = userData.facultyId || 
+                   userData.faculty_id || 
+                   (userData.additionalInfo && userData.additionalInfo.facultyId);
+                   
+        console.log('Found facultyId in userData:', facultyId);
+      }
+    } catch (error) {
+      console.error('Error parsing userData from localStorage:', error);
+    }
+  }
   
   // Prepare course data - use exactly the same field names as expected by backend
   const courseData = {
@@ -38,10 +69,30 @@ async function handleFormSubmission(event) {
     credit_hours: creditHours,
     section: section,
     description: description,
-    semester: semester
+    semester: semester,
+    faculty_id: facultyId // Include the faculty ID in the request
   };
   
   console.log('Submitting course data:', courseData);
+    // Get status message element for feedback
+  const statusMessage = document.getElementById('status-message');
+  
+  // Show loading state
+  if (statusMessage) {
+    statusMessage.className = 'status-message';
+    statusMessage.textContent = 'Creating course...';
+    statusMessage.style.display = 'block';
+    statusMessage.style.backgroundColor = '#e3f2fd';
+    statusMessage.style.color = '#1565c0';
+    statusMessage.style.border = '1px solid #90caf9';
+  }
+  
+  // Setup form button loading state if it exists
+  const submitButton = document.querySelector('button[type="submit"]');
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+  }
   
   try {
     const token = localStorage.getItem('token');
@@ -49,13 +100,21 @@ async function handleFormSubmission(event) {
       throw new Error('Not authenticated');
     }
     
+    // Check if faculty ID is available
+    if (!courseData.faculty_id) {
+      console.warn('No faculty ID available - trying to create course without it.');
+      // This is allowed as the backend will try to determine it from the user ID
+    }
+    
     // Send API request
     const response = await fetch('http://localhost:5000/api/faculty/courses', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Cache-Control': 'no-cache'
       },
+      credentials: 'include', // Include cookies for HTTP-only auth
       body: JSON.stringify(courseData)
     });
     
@@ -66,16 +125,80 @@ async function handleFormSubmission(event) {
     console.log('Server response:', result);
     
     if (!response.ok) {
-      throw new Error(result.message || 'Failed to create course');
+      // Format the error message
+      let errorMessage = result.message || 'Failed to create course';
+      
+      // If it contains the specific null faculty_id error we're working on
+      if (errorMessage.includes('faculty_id') && errorMessage.includes('null value')) {
+        errorMessage = 'Faculty ID missing. Please try logging out and logging in again.';
+        
+        // Attempt to fix by fetching faculty ID directly
+        if (typeof getFacultyId === 'function') {
+          if (statusMessage) {
+            statusMessage.textContent = 'Trying to fix faculty ID issue...';
+          }
+          
+          // Wait a moment to show the message
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Try to get faculty ID
+          const facultyId = await getFacultyId();
+          if (facultyId) {
+            errorMessage += ' Refreshing page with updated faculty information...';
+            if (statusMessage) {
+              statusMessage.textContent = errorMessage;
+            }
+            
+            // Wait 2 seconds then reload the page
+            setTimeout(() => window.location.reload(), 2000);
+            return;
+          }
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
     
-    alert('Course created successfully!');
-    // Redirect to courses page
-    window.location.href = './courses.html';
+    // Success handling - show message
+    if (statusMessage) {
+      statusMessage.className = 'status-message success';
+      statusMessage.textContent = 'Course created successfully!';
+    } else {
+      alert('Course created successfully!');
+    }
+    
+    // Reset form if not redirecting
+    const courseForm = document.getElementById('add-course-form');
+    if (courseForm) {
+      courseForm.reset();
+    }
+    
+    // Reset button state
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.innerHTML = '<i class="fas fa-plus-circle"></i> Add Course';
+    }
+      // Redirect to dashboard page after a short delay
+    setTimeout(() => {
+      window.location.href = './dashboard.html';
+    }, 1500);
     
   } catch (error) {
     console.error('Error creating course:', error);
-    alert('Error creating course: ' + error.message);
+    
+    // Show error in status message
+    if (statusMessage) {
+      statusMessage.className = 'status-message error';
+      statusMessage.textContent = 'Error: ' + error.message;
+    } else {
+      alert('Error creating course: ' + error.message);
+    }
+    
+    // Reset button state
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.innerHTML = '<i class="fas fa-plus-circle"></i> Add Course';
+    }
   }
 }
 

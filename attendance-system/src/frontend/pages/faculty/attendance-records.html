@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Records | Faculty</title>
     <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/attendance-cards.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -14,17 +14,10 @@
             <div class="sidebar-header">
                 <h3>Attendance System</h3>
             </div>
-            <ul class="sidebar-menu">
-                <li>
+            <ul class="sidebar-menu">                <li>
                     <a href="dashboard.html">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="courses.html">
-                        <i class="fas fa-book"></i>
-                        <span>My Courses</span>
                     </a>
                 </li>
                 <li>
@@ -86,13 +79,12 @@
                     <h1>Attendance Records</h1>
                     <p>View and manage attendance records for your courses</p>
                 </div>
-                
-                <div class="courses-section">
+                  <div class="courses-section">
                     <div class="section-header">
-                        <h2>Course Attendance Summary</h2>
+                        <h2>My Courses</h2>
                     </div>
                     <div class="course-list" id="course-attendance-summary">
-                        <!-- Course attendance summary will be populated here via JavaScript -->
+                        <!-- Course cards will be populated here via JavaScript -->
                         <div class="loading-spinner">Loading courses...</div>
                     </div>
                 </div>
@@ -103,7 +95,7 @@
                         <div class="header-with-actions">
                             <h2 id="selected-course-title">Student Attendance Records</h2>
                             <button id="back-to-summary" class="btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Back to Summary
+                                <i class="fas fa-arrow-left"></i> Back to Courses
                             </button>
                         </div>
                     </div>
@@ -132,11 +124,11 @@
                                         <tr>
                                             <th>Registration No.</th>
                                             <th>Name</th>
-                                            <th>Total Sessions</th>
                                             <th>Present</th>
                                             <th>Absent</th>
+                                            <th>Leave</th>
+                                            <th>Total</th>
                                             <th>Percentage</th>
-                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -161,6 +153,11 @@
                                 <p><strong>Registration No.:</strong> <span id="detail-reg-number"></span></p>
                                 <p><strong>Name:</strong> <span id="detail-name"></span></p>
                                 <p><strong>Course:</strong> <span id="detail-course"></span></p>
+                                <p><strong>Attendance Summary:</strong> 
+                                   Present: <span id="detail-present-count"></span>, 
+                                   Absent: <span id="detail-absent-count"></span>, 
+                                   Leave: <span id="detail-leave-count"></span>
+                                </p>
                                 <p><strong>Overall Attendance:</strong> <span id="detail-percentage"></span></p>
                             </div>
                             <div class="table-container">
@@ -168,7 +165,6 @@
                                     <thead>
                                         <tr>
                                             <th>Date</th>
-                                            <th>Session</th>
                                             <th>Status</th>
                                             <th>Remarks</th>
                                         </tr>
@@ -184,6 +180,7 @@
             </div>
         </div>
     </div>    <script src="../../assets/js/logout.js"></script>
+    <script src="../../assets/js/faculty-common.js"></script>
     <script src="../../assets/js/faculty-attendance-records.js"></script>
 </body>
 </html>
