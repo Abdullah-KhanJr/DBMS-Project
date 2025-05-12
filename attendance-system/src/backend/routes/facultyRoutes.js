@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const facultyController = require('../controllers/facultyController');
+const db = require('../config/db');
 
 // Add a new course
 router.post('/courses', facultyController.addCourse);
@@ -20,5 +21,14 @@ router.get('/verify-student', facultyController.verifyStudent);
 router.post('/course-sessions', facultyController.createCourseSession);
 // Get all course sessions for a faculty
 router.get('/course-sessions', facultyController.getCourseSessions);
+
+router.get('/attendance-status', async (req, res) => {
+    try {
+        const result = await db.query('SELECT status_id, label FROM attendance_status');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 module.exports = router; 

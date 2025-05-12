@@ -1,3 +1,20 @@
+// At the top, add a global variable for status mapping
+let attendanceStatusMap = {};
+
+// Fetch status_id mapping at page load
+async function fetchAttendanceStatusMap() {
+    const response = await fetch('/api/attendance-status');
+    if (response.ok) {
+        const data = await response.json();
+        attendanceStatusMap = data.reduce((acc, row) => {
+            acc[row.label] = row.status_id;
+            return acc;
+        }, {});
+    } else {
+        attendanceStatusMap = { 'Present': 1, 'Absent': 2, 'Leave': 3 };
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async function() {    // Verify faculty is logged in
     const token = localStorage.getItem('token');
     if (!token) {
@@ -32,6 +49,8 @@ document.addEventListener('DOMContentLoaded', async function() {    // Verify fa
     document.getElementById('sidebar-toggle').addEventListener('click', function() {
         document.querySelector('.sidebar').classList.toggle('active');
     });
+    
+    await fetchAttendanceStatusMap();
 });
 
 // Load faculty courses for dropdown
@@ -202,7 +221,7 @@ async function loadEnrolledStudents(courseId, sessionId) {
     const studentsList = document.getElementById('students-list');
     
     try {
-        const response = await fetch(`/api/faculty/courses/${courseId}/students`, {
+        const response = await fetch(`/api/faculty/courses/students?course_id=${courseId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -220,74 +239,33 @@ async function loadEnrolledStudents(courseId, sessionId) {
             studentsList.innerHTML = '';
             
             if (students.length === 0) {
-                studentsList.innerHTML = '<p class="no-students">No students enrolled in this course.</p>';
+                studentsList.innerHTML = '<tr><td colspan="3" class="text-center">No students enrolled in this course.</td></tr>';
                 return;
             }
             
-            // Create table for student attendance
-            let tableHtml = `
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Reg. Number</th>
-                        <th>Name</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-            `;
-            
-            students.forEach((student, index) => {
-                tableHtml += `
+            students.forEach(student => {
+                studentsList.innerHTML += `
                 <tr>
                     <td>${student.registration_number}</td>
                     <td>${student.name}</td>
                     <td>
-                        <div class="attendance-radio-group">
-                            <label>
-                                <input type="radio" name="attendance_${student.registration_number}" value="Present" checked>
-                                Present
-                            </label>
-                            <label>
-                                <input type="radio" name="attendance_${student.registration_number}" value="Absent">
-                                Absent
-                            </label>
-                            <label>
-                                <input type="radio" name="attendance_${student.registration_number}" value="Leave">
-                                Leave
-                            </label>
-                            <input type="hidden" name="student_reg" value="${student.registration_number}">
-                        </div>
+                        <select name="attendance_status_${student.registration_number}" class="attendance-status">
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                            <option value="Leave">Leave</option>
+                        </select>
+                        <input type="hidden" name="student_reg" value="${student.registration_number}">
                     </td>
                 </tr>
                 `;
             });
-            
-            tableHtml += `
-                </tbody>
-            </table>
-            
-            <div class="form-actions" style="margin-top: 20px;">
-                <button type="button" id="mark-all-present" class="btn-secondary">
-                    <i class="fas fa-check-circle"></i> Mark All Present
-                </button>
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-save"></i> Save Attendance
-                </button>
-            </div>
-            `;
-            
-            studentsList.innerHTML = tableHtml;
-            
-            // Reattach event listener for mark all present button
-            document.getElementById('mark-all-present').addEventListener('click', markAllPresent);
             
         } else {
             throw new Error('Failed to load students');
         }
     } catch (error) {
         console.error('Error loading students:', error);
-        studentsList.innerHTML = `<p class="error">Error loading students: ${error.message}</p>`;
+        studentsList.innerHTML = `<tr><td colspan="3" class="text-center">Error loading students: ${error.message}</td></tr>`;
     }
 }
 
@@ -298,20 +276,28 @@ async function saveAttendance(e) {
     const token = localStorage.getItem('token');
     const courseId = document.getElementById('attendance-course-id').value;
     const sessionId = document.getElementById('attendance-session-id').value;
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    const markedBy = userData?.facultyId || userData?.faculty_id;
+    const today = new Date();
+    const attendanceDate = today.toISOString().split('T')[0];
+    const attendanceTime = today.toTimeString().split(' ')[0];
     
     try {
-        // Find all student attendance records
         const attendanceRecords = [];
         const studentInputs = document.querySelectorAll('input[name^="student_reg"]');
         
         studentInputs.forEach(input => {
             const registrationNumber = input.value;
-            const statusElement = document.querySelector(`input[name="attendance_${registrationNumber}"]:checked`);
+            const statusElement = document.querySelector(`select[name="attendance_status_${registrationNumber}"]`);
             const status = statusElement ? statusElement.value : 'Absent';
+            const statusId = attendanceStatusMap[status] || 2;
             
             attendanceRecords.push({
                 registration_number: registrationNumber,
-                status: status
+                status_id: statusId,
+                attendance_date: attendanceDate,
+                attendance_time: attendanceTime,
+                marked_by: markedBy
             });
         });
         
@@ -322,7 +308,7 @@ async function saveAttendance(e) {
             attendance: attendanceRecords
         });
         
-        const response = await fetch('/api/faculty/attendance', {
+        const response = await fetch('/api/faculty/attendance/mark', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -361,127 +347,12 @@ function logApiResponse(response, data) {
     });
 }
 
-
-// Load enrolled students for a course
-async function loadEnrolledStudents(courseId, sessionId) {
-    const token = localStorage.getItem('token');
-    const studentsList = document.getElementById('students-list');
-    
-    try {
-        const response = await fetch(`/api/faculty/courses/students?course_id=${courseId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            const students = data.students || [];
-            
-            if (students.length === 0) {
-                studentsList.innerHTML = `
-                    <tr>
-                        <td colspan="3" class="text-center">No students enrolled in this course.</td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            studentsList.innerHTML = students.map(student => `
-                <tr>
-                    <td>${student.reg_number}</td>
-                    <td>${student.student_name}</td>
-                    <td>
-                        <select name="status_${student.student_id}" class="attendance-status">
-                            <option value="Present">Present</option>
-                            <option value="Absent">Absent</option>
-                            <option value="Leave">Leave</option>
-                        </select>
-                    </td>
-                </tr>
-            `).join('');
-            
-        } else {
-            throw new Error('Failed to load enrolled students');
-        }
-    } catch (error) {
-        console.error('Error fetching enrolled students:', error);
-        studentsList.innerHTML = `
-            <tr>
-                <td colspan="3" class="text-center">Error loading students. Please try again.</td>
-            </tr>
-        `;
-    }
-}
-
 // Mark all students as present
 function markAllPresent() {
     const statusSelects = document.querySelectorAll('.attendance-status');
     statusSelects.forEach(select => {
         select.value = 'Present';
     });
-}
-
-// Save attendance records
-async function saveAttendance(e) {
-    e.preventDefault();
-    
-    const token = localStorage.getItem('token');
-    const sessionId = document.getElementById('session_id').value;
-    const statusMessage = document.getElementById('status-message');
-    
-    if (!sessionId) {
-        showStatusMessage('No active session found', 'error');
-        return;
-    }
-    
-    try {
-        statusMessage.textContent = 'Saving attendance...';
-        statusMessage.className = 'status-message info';
-        
-        // Collect attendance data
-        const statusSelects = document.querySelectorAll('.attendance-status');
-        const attendanceData = Array.from(statusSelects).map(select => {
-            const studentId = select.name.replace('status_', '');
-            return {
-                student_id: studentId,
-                status: select.value
-            };
-        });
-        
-        const response = await fetch('/api/faculty/attendance/mark', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(attendanceData)
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            showStatusMessage(result.message, result.type);
-            
-            // Hide attendance section after 2 seconds
-            setTimeout(() => {
-                document.getElementById('attendance-section').style.display = 'none';
-                // Reset form
-                document.getElementById('create-session-form').reset();
-                // Set today's date again
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('session_date').value = today;
-            }, 2000);
-            
-            // Update course sessions
-            loadCourseSessions();
-        } else {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to save attendance');
-        }
-    } catch (error) {
-        console.error('Error saving attendance:', error);
-        showStatusMessage(`Error: ${error.message}`, 'error');
-    }
 }
 
 // Show status message

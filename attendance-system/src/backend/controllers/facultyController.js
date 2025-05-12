@@ -92,18 +92,30 @@ exports.getStudentsInCourse = async (req, res) => {
     }
 };
 
-// Mark attendance for a student in a session
+// Mark attendance for a batch of students in a session
 exports.markAttendance = async (req, res) => {
-    const { registration_number, course_id, session_id, status_id, attendance_date, attendance_time, marked_by } = req.body;
+    const { session_id, course_id, attendance } = req.body;
+    if (!Array.isArray(attendance)) {
+        return res.status(400).json({ success: false, error: 'Attendance must be an array.' });
+    }
+    const client = await db.connect();
     try {
-        const result = await db.query(
-            `INSERT INTO attendance (registration_number, course_id, session_id, status_id, attendance_date, attendance_time, marked_by)
-             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-            [registration_number, course_id, session_id, status_id, attendance_date, attendance_time, marked_by]
-        );
-        res.status(201).json({ success: true, attendance: result.rows[0] });
+        await client.query('BEGIN');
+        for (const record of attendance) {
+            const { registration_number, status_id, attendance_date, attendance_time, marked_by } = record;
+            await client.query(
+                `INSERT INTO attendance (registration_number, course_id, session_id, status_id, attendance_date, attendance_time, marked_by)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                [registration_number, course_id, session_id, status_id, attendance_date, attendance_time, marked_by]
+            );
+        }
+        await client.query('COMMIT');
+        res.status(201).json({ success: true, message: 'Attendance saved successfully.' });
     } catch (err) {
+        await client.query('ROLLBACK');
         res.status(500).json({ success: false, error: err.message });
+    } finally {
+        client.release();
     }
 };
 
@@ -190,12 +202,11 @@ exports.getCourseSessions = async (req, res) => {
     try {
         const result = await db.query(
             `SELECT c.course_code, c.course_title, c.credit_hours, 
-                    COUNT(cs.session_id) AS sessions_conducted, 
-                    c.max_sessions
+                    COUNT(cs.session_id) AS sessions_conducted
              FROM courses c
              LEFT JOIN course_sessions cs ON c.course_id = cs.course_id
              WHERE c.faculty_id = $1
-             GROUP BY c.course_id`,
+             GROUP BY c.course_id, c.course_code, c.course_title, c.credit_hours`,
             [faculty_id]
         );
         res.json(result.rows);
