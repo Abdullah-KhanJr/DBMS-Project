@@ -77,82 +77,33 @@ document.addEventListener("DOMContentLoaded", function() {
 async function loadCourseCards() {
     const courseAttendanceSummary = document.getElementById("course-attendance-summary");
     if (!courseAttendanceSummary) return;
-    
     try {
         courseAttendanceSummary.innerHTML = "<div class=\"loading-spinner\">Loading courses...</div>";
-        
         const token = localStorage.getItem("token");
-        const response = await fetch('/api/faculty/courses', {
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        const facultyId = userData?.facultyId || userData?.faculty_id;
+        const response = await fetch(`/api/faculty/courses?faculty_id=${facultyId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         const data = await response.json();
         const courses = data.courses || [];
-        
         if (courses.length === 0) {
             courseAttendanceSummary.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    <h3>No Courses Found</h3>
-                    <p>You don't have any courses yet. Add a course to start tracking attendance.</p>
-                    <a href="add-course.html" class="btn-primary">Add Course</a>
-                </div>
+                <div class=\"empty-state\">\n                    <div class=\"empty-icon\">\n                        <i class=\"fas fa-book-open\"></i>\n                    </div>\n                    <h3>No Courses Found</h3>\n                    <p>You don't have any courses yet. Add a course to start tracking attendance.</p>\n                    <a href=\"add-course.html\" class=\"btn-primary\">Add Course</a>\n                </div>
             `;
             return;
         }
-        
         // Create course cards
         let cardsHTML = "";
         courses.forEach(course => {
-            // Determine color based on attendance rate
-            let statusColor = course.attendanceRate >= 90 ? "var(--success-color)" : 
-                             course.attendanceRate >= 80 ? "var(--warning-color)" : 
-                             "var(--danger-color)";
-            
+            // Determine color based on attendance rate (optional, can be improved)
+            let statusColor = "var(--success-color)";
             cardsHTML += `
-                <div class="course-card attendance-card" data-course-id="${course.id}">
-                    <div class="course-header">
-                        <h3>${course.name}</h3>
-                        <span class="course-code">${course.code}</span>
-                    </div>
-                    <div class="course-info">
-                        <p><i class="fas fa-users"></i> ${course.studentCount} Students</p>
-                        <p><i class="fas fa-calendar-check"></i> ${course.totalSessions} Sessions</p>
-                    </div>
-                    <div class="course-attendance">
-                        <div class="attendance-bar">
-                            <div class="attendance-progress" style="width: ${course.attendanceRate}%; background-color: ${statusColor};"></div>
-                        </div>
-                        <span>${course.attendanceRate}% Average Attendance</span>
-                    </div>
-                    <div class="attendance-counts">
-                        <div class="count-item present">
-                            <span class="count-value">${course.presentCount}</span>
-                            <span class="count-label">Present</span>
-                        </div>
-                        <div class="count-item absent">
-                            <span class="count-value">${course.absentCount}</span>
-                            <span class="count-label">Absent</span>
-                        </div>
-                        <div class="count-item total">
-                            <span class="count-value">${course.totalSessions}</span>
-                            <span class="count-label">Sessions</span>
-                        </div>
-                    </div>
-                    <div class="course-actions">
-                        <button class="btn-primary view-attendance-btn">
-                            <i class="fas fa-clipboard-list"></i> View Attendance
-                        </button>
-                    </div>
-                </div>
-            `;
+                <div class=\"course-card attendance-card\" data-course-id=\"${course.course_id}\">\n                    <div class=\"course-header\">\n                        <h3>${course.course_title}</h3>\n                        <span class=\"course-code\">${course.course_code}</span>\n                    </div>\n                    <div class=\"course-info\">\n                        <p><i class=\"fas fa-users\"></i> Section: ${course.section || 'N/A'}</p>\n                        <p><i class=\"fas fa-clock\"></i> Semester: ${course.semester || ''}</p>\n                    </div>\n                    <div class=\"course-actions\">\n                        <button class=\"btn-primary view-attendance-btn\">\n                            <i class=\"fas fa-clipboard-list\"></i> View Attendance\n                        </button>\n                    </div>\n                </div>\n            `;
         });
-        
         courseAttendanceSummary.innerHTML = cardsHTML;
-        
         // Add click event to the cards
         document.querySelectorAll(".view-attendance-btn").forEach(button => {
             button.addEventListener("click", function() {
@@ -162,42 +113,78 @@ async function loadCourseCards() {
                 showStudentAttendanceList(courseId, courseName);
             });
         });
-        
     } catch (error) {
         console.error("Error loading course cards:", error);
         courseAttendanceSummary.innerHTML = `
-            <div class="error-state">
-                <div class="error-icon">
-                    <i class="fas fa-exclamation-circle"></i>
-                </div>
-                <h3>Error Loading Courses</h3>
-                <p>${error.message}</p>
-                <button class="btn-primary" onclick="loadCourseCards()">Retry</button>
-            </div>
+            <div class=\"error-state\">\n                <div class=\"error-icon\">\n                    <i class=\"fas fa-exclamation-circle\"></i>\n                </div>\n                <h3>Error Loading Courses</h3>\n                <p>${error.message}</p>\n                <button class=\"btn-primary\" onclick=\"loadCourseCards()\">Retry</button>\n            </div>
         `;
     }
 }
 
-// Function to show student attendance list for a specific course
+// Function to show student attendance matrix for a specific course
 async function showStudentAttendanceList(courseId, courseName) {
     const studentAttendanceSection = document.getElementById("student-attendance-section");
     const courseAttendanceSummary = document.getElementById("course-attendance-summary");
     const selectedCourseTitle = document.getElementById("selected-course-title");
-    
     if (!studentAttendanceSection || !courseAttendanceSummary) return;
-    
     // Set course title and ID
     if (selectedCourseTitle) {
         selectedCourseTitle.textContent = courseName;
     }
     studentAttendanceSection.dataset.courseId = courseId;
-    
     // Hide course summary and show student section
     courseAttendanceSummary.parentElement.style.display = "none";
     studentAttendanceSection.style.display = "block";
-    
-    // Load student attendance data
-    loadStudentAttendance(courseId);
+    // Load student attendance matrix
+    loadStudentAttendanceMatrix(courseId);
+}
+
+// Function to load student attendance matrix
+async function loadStudentAttendanceMatrix(courseId) {
+    const studentAttendanceList = document.getElementById("student-attendance-list");
+    if (!studentAttendanceList) return;
+    try {
+        studentAttendanceList.innerHTML = '<tr><td colspan="100" class="text-center">Loading attendance data...</td></tr>';
+        const token = localStorage.getItem("token");
+        const response = await fetch(`/api/faculty/attendance/matrix?course_id=${courseId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        const students = data.students || [];
+        const sessions = data.sessions || [];
+        const attendance = data.attendance || [];
+        // Build a map: { registration_number: { session_id: status_label } }
+        const attendanceMap = {};
+        attendance.forEach(a => {
+            if (!attendanceMap[a.registration_number]) attendanceMap[a.registration_number] = {};
+            attendanceMap[a.registration_number][a.session_id] = a.status_label;
+        });
+        // Build table header
+        let headerHtml = '<tr><th>Registration No.</th><th>Name</th>';
+        sessions.forEach((session, idx) => {
+            headerHtml += `<th>Session ${idx + 1}<br><span style=\"font-size:10px\">${session.session_date}</span></th>`;
+        });
+        headerHtml += '</tr>';
+        // Build table rows
+        let rowsHtml = '';
+        students.forEach(student => {
+            rowsHtml += `<tr><td>${student.registration_number}</td><td>${student.name}</td>`;
+            sessions.forEach(session => {
+                const status = attendanceMap[student.registration_number]?.[session.session_id] || '';
+                let cell = '';
+                if (status === 'Present') cell = '<span style="color:green;font-weight:bold">P</span>';
+                else if (status === 'Absent') cell = '<span style="color:red;font-weight:bold">A</span>';
+                else if (status === 'Leave') cell = '<span style="color:orange;font-weight:bold">L</span>';
+                else cell = '-';
+                rowsHtml += `<td style="text-align:center">${cell}</td>`;
+            });
+            rowsHtml += '</tr>';
+        });
+        studentAttendanceList.innerHTML = headerHtml + rowsHtml;
+    } catch (error) {
+        console.error("Error loading student attendance matrix:", error);
+        studentAttendanceList.innerHTML = `<tr><td colspan="100" class="text-center text-danger">Error: ${error.message}</td></tr>`;
+    }
 }
 
 // Function to load student attendance data

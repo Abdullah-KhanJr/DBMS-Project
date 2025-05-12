@@ -21,6 +21,8 @@ router.get('/verify-student', facultyController.verifyStudent);
 router.post('/course-sessions', facultyController.createCourseSession);
 // Get all course sessions for a faculty
 router.get('/course-sessions', facultyController.getCourseSessions);
+// Get attendance matrix
+router.get('/attendance/matrix', facultyController.getAttendanceMatrix);
 
 router.get('/attendance-status', async (req, res) => {
     try {

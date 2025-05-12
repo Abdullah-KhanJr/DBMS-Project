@@ -208,3 +208,43 @@ exports.getCourseSessions = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Get attendance matrix for a course: students x sessions
+exports.getAttendanceMatrix = async (req, res) => {
+    const { course_id } = req.query;
+    try {
+        // Get all students enrolled in the course
+        const studentsResult = await db.query(
+            `SELECT s.registration_number, u.name
+             FROM student_course sc
+             JOIN students s ON sc.registration_number = s.registration_number
+             JOIN users u ON s.user_id = u.user_id
+             WHERE sc.course_id = $1
+             ORDER BY s.registration_number`,
+            [course_id]
+        );
+        // Get all sessions for the course
+        const sessionsResult = await db.query(
+            `SELECT session_id, session_date, session_time
+             FROM course_sessions
+             WHERE course_id = $1
+             ORDER BY session_date, session_time`,
+            [course_id]
+        );
+        // Get all attendance records for the course
+        const attendanceResult = await db.query(
+            `SELECT a.registration_number, a.session_id, ast.label as status_label
+             FROM attendance a
+             JOIN attendance_status ast ON a.status_id = ast.status_id
+             WHERE a.course_id = $1`,
+            [course_id]
+        );
+        res.json({
+            students: studentsResult.rows,
+            sessions: sessionsResult.rows,
+            attendance: attendanceResult.rows
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
