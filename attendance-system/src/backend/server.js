@@ -15,12 +15,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from frontend directory
-app.use(express.static(path.join(__dirname, '../frontend')));
-
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/faculty', facultyRoutes);
+
+// Serve static files from frontend directory
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Serve the main index page for root requests
 app.get('/', (req, res) => {
@@ -53,7 +53,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 3000;  // Changed from 5000 to 3000
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Open your browser and navigate to http://localhost:${PORT}`);

@@ -20,7 +20,7 @@ exports.getCourses = async (req, res) => {
     const { faculty_id } = req.query;
     try {
         const result = await db.query(
-            `SELECT * FROM courses WHERE faculty_id = $1`,
+            `SELECT course_id, course_code, course_title, credit_hours, section FROM courses WHERE faculty_id = $1`,
             [faculty_id]
         );
         res.json({ success: true, courses: result.rows });
@@ -145,5 +145,61 @@ exports.verifyStudent = async (req, res) => {
         }
     } catch (err) {
         res.status(500).json({ exists: false, success: false, error: err.message });
+    }
+};
+
+// Create a new course session
+exports.createCourseSession = async (req, res) => {
+    console.log('Received request to create course session:', req.body);
+    const { course_id, session_date, duration } = req.body;
+    try {
+        // Extract session_time from the session_date (which should be in ISO format like 2025-05-12T08:30:00)
+        const dateObj = new Date(session_date);
+        const session_time = dateObj.toTimeString().split(' ')[0]; // Get HH:MM:SS
+        
+        // Generate a unique session code based on course and timestamp
+        // Make sure it's within 20 characters for VARCHAR(20)
+        const shortTimestamp = Math.floor(Date.now() / 1000) % 10000; // Last 4 digits of unix timestamp
+        const session_code = `S${course_id}-${shortTimestamp}`;
+        
+        console.log('Creating session with parameters:', {
+            session_code,
+            course_id,
+            session_date: dateObj.toISOString().split('T')[0],
+            session_time,
+            duration
+        });
+        
+        const result = await db.query(
+            `INSERT INTO course_sessions (session_code, course_id, session_date, session_time, duration) 
+             VALUES ($1, $2, $3, $4, $5) RETURNING session_id`,
+            [session_code, course_id, dateObj.toISOString().split('T')[0], session_time, duration]
+        );
+        
+        console.log('Session created successfully with id:', result.rows[0].session_id);
+        res.status(201).json({ session_id: result.rows[0].session_id });
+    } catch (err) {
+        console.error('Error creating session:', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Get all course sessions for a faculty
+exports.getCourseSessions = async (req, res) => {
+    const { faculty_id } = req.query;
+    try {
+        const result = await db.query(
+            `SELECT c.course_code, c.course_title, c.credit_hours, 
+                    COUNT(cs.session_id) AS sessions_conducted, 
+                    c.max_sessions
+             FROM courses c
+             LEFT JOIN course_sessions cs ON c.course_id = cs.course_id
+             WHERE c.faculty_id = $1
+             GROUP BY c.course_id`,
+            [faculty_id]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 };

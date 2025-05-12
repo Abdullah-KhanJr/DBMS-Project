@@ -72,10 +72,12 @@ async function loadCourses() {
 // Load course sessions data
 async function loadCourseSessions() {
     const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    const facultyId = userData?.facultyId || userData?.faculty_id;
     const sessionsList = document.getElementById('course-sessions-list');
     
     try {
-        const response = await fetch('/api/faculty/course-sessions', {
+        const response = await fetch(`/api/faculty/course-sessions?faculty_id=${facultyId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -158,7 +160,15 @@ async function createSession(e) {
             })
         });
         
-        const data = await response.json();
+        // Defensive: check content-type before parsing as JSON
+        const contentType = response.headers.get('content-type');
+        let data;
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            throw new Error('Server error: ' + text);
+        }
         
         if (response.ok) {
             showStatusMessage(`Session created successfully for course ID: ${courseId}`, 'success');

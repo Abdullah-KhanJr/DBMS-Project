@@ -16,5 +16,9 @@ router.post('/attendance/mark', facultyController.markAttendance);
 router.get('/attendance/records', facultyController.getAttendanceRecords);
 // Add a route for verifying student existence
 router.get('/verify-student', facultyController.verifyStudent);
+// Add a new course session
+router.post('/course-sessions', facultyController.createCourseSession);
+// Get all course sessions for a faculty
+router.get('/course-sessions', facultyController.getCourseSessions);
 
 module.exports = router; 
