@@ -41,24 +41,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    if (statusFilter) {
-        statusFilter.addEventListener("change", function() {
-            const courseId = studentAttendanceSection.dataset.courseId;
-            if (courseId) {
-                loadStudentAttendance(courseId, this.value);
-            }
-        });
-    }
-    
-    if (exportCsvBtn) {
-        exportCsvBtn.addEventListener("click", function() {
-            const courseId = studentAttendanceSection.dataset.courseId;
-            if (courseId) {
-                exportAttendanceData(courseId);
-            }
-        });
-    }
-    
     if (modalClose) {
         modalClose.addEventListener("click", function() {
             studentDetailModal.style.display = "none";
@@ -95,22 +77,13 @@ async function loadCourseCards() {
             `;
             return;
         }
-        // Fetch student counts for each course
-        const studentCounts = {};
-        await Promise.all(courses.map(async (course) => {
-            const res = await fetch(`/api/faculty/courses/students?course_id=${course.course_id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const studentsData = await res.json();
-            studentCounts[course.course_id] = (studentsData.students || []).length;
-        }));
         // Create course cards
         let cardsHTML = "";
         courses.forEach(course => {
+            // Determine color based on attendance rate (optional, can be improved)
             let statusColor = "var(--success-color)";
-            const studentCount = studentCounts[course.course_id] || 0;
             cardsHTML += `
-                <div class=\"course-card attendance-card\" data-course-id=\"${course.course_id}\">\n                    <div class=\"course-header\">\n                        <h3>${course.course_title}</h3>\n                        <span class=\"course-code\">${course.course_code}</span>\n                    </div>\n                    <div class=\"course-info\">\n                        <p><i class=\"fas fa-users\"></i> Students: ${studentCount}</p>\n                    </div>\n                    <div class=\"course-actions\">\n                        <button class=\"btn-primary view-attendance-btn\">\n                            <i class=\"fas fa-clipboard-list\"></i> View Attendance\n                        </button>\n                    </div>\n                </div>\n            `;
+                <div class=\"course-card attendance-card\" data-course-id=\"${course.course_id}\">\n                    <div class=\"course-header\">\n                        <h3>${course.course_title}</h3>\n                        <span class=\"course-code\">${course.course_code}</span>\n                    </div>\n                    <div class=\"course-info\">\n                        <p><i class=\"fas fa-users\"></i> Section: ${course.section || 'N/A'}</p>\n                        <p><i class=\"fas fa-clock\"></i> Semester: ${course.semester || ''}</p>\n                    </div>\n                    <div class=\"course-actions\">\n                        <button class=\"btn-primary view-attendance-btn\">\n                            <i class=\"fas fa-clipboard-list\"></i> View Attendance\n                        </button>\n                    </div>\n                </div>\n            `;
         });
         courseAttendanceSummary.innerHTML = cardsHTML;
         // Add click event to the cards
@@ -168,39 +141,31 @@ async function loadStudentAttendanceMatrix(courseId) {
             if (!attendanceMap[a.registration_number]) attendanceMap[a.registration_number] = {};
             attendanceMap[a.registration_number][a.session_id] = a.status_label;
         });
-        // Build table header (with scrollable session columns)
+        // Build table header: Registration No., Name, Present, Absent, Leave, Total, Percentage, then session columns
         let headerHtml = '<tr><th>Registration No.</th><th>Name</th><th>Present</th><th>Absent</th><th>Leave</th><th>Total</th><th>Percentage</th>';
         sessions.forEach((session, idx) => {
-            headerHtml += `<th>Session ${idx + 1}<br><span style=\"font-size:10px\">${session.session_date}</span></th>`;
+            headerHtml += `<th>Session ${idx + 1}</th>`;
         });
         headerHtml += '</tr>';
         // Build table rows
         let rowsHtml = '';
         students.forEach(student => {
             let present = 0, absent = 0, leave = 0;
-            sessions.forEach(session => {
-                const status = attendanceMap[student.registration_number]?.[session.session_id] || '';
-                if (status === 'Present') present++;
-                else if (status === 'Absent') absent++;
-                else if (status === 'Leave') leave++;
-            });
-            const total = sessions.length;
-            const percentage = total > 0 ? ((present / total) * 100).toFixed(1) : '0.0';
-            rowsHtml += `<tr><td>${student.registration_number}</td><td>${student.name}</td><td>${present}</td><td>${absent}</td><td>${leave}</td><td>${total}</td><td>${percentage}%</td>`;
+            let sessionCells = '';
             sessions.forEach(session => {
                 const status = attendanceMap[student.registration_number]?.[session.session_id] || '';
                 let cell = '';
-                if (status === 'Present') cell = '<span style="color:green;font-weight:bold">P</span>';
-                else if (status === 'Absent') cell = '<span style="color:red;font-weight:bold">A</span>';
-                else if (status === 'Leave') cell = '<span style="color:orange;font-weight:bold">L</span>';
-                else cell = '-';
-                rowsHtml += `<td style="text-align:center">${cell}</td>`;
+                if (status === 'Present') { cell = '<span style="color:green;font-weight:bold">P</span>'; present++; }
+                else if (status === 'Absent') { cell = '<span style="color:red;font-weight:bold">A</span>'; absent++; }
+                else if (status === 'Leave') { cell = '<span style="color:orange;font-weight:bold">L</span>'; leave++; }
+                else { cell = '-'; }
+                sessionCells += `<td style="text-align:center">${cell}</td>`;
             });
-            rowsHtml += '</tr>';
+            const total = sessions.length;
+            const percentage = total > 0 ? ((present / total) * 100).toFixed(1) : '0.0';
+            rowsHtml += `<tr><td>${student.registration_number}</td><td>${student.name}</td><td>${present}</td><td>${absent}</td><td>${leave}</td><td>${total}</td><td>${percentage}%</td>${sessionCells}</tr>`;
         });
-        // Wrap the session columns in a scrollable div
-        const tableHtml = `<div style="overflow-x:auto;"><table class="data-table">${headerHtml + rowsHtml}</table></div>`;
-        studentAttendanceList.parentElement.innerHTML = tableHtml;
+        studentAttendanceList.innerHTML = headerHtml + rowsHtml;
     } catch (error) {
         console.error("Error loading student attendance matrix:", error);
         studentAttendanceList.innerHTML = `<tr><td colspan="100" class="text-center text-danger">Error: ${error.message}</td></tr>`;
@@ -208,13 +173,11 @@ async function loadStudentAttendanceMatrix(courseId) {
 }
 
 // Function to load student attendance data
-async function loadStudentAttendance(courseId, statusFilter = "all") {
+async function loadStudentAttendance(courseId) {
     const studentAttendanceList = document.getElementById("student-attendance-list");
     if (!studentAttendanceList) return;
-    
     try {
         studentAttendanceList.innerHTML = "<tr><td colspan=\"8\" class=\"text-center\">Loading attendance data...</td></tr>";
-        
         const token = localStorage.getItem("token");
         const response = await fetch(`/api/faculty/attendance/records?course_id=${courseId}`, {
             headers: {
@@ -223,48 +186,22 @@ async function loadStudentAttendance(courseId, statusFilter = "all") {
         });
         const data = await response.json();
         const records = data.records || [];
-        
         if (records.length === 0) {
             studentAttendanceList.innerHTML = `
                 <tr>
-                    <td colspan="8" class="text-center">No students enrolled in this course.</td>
+                    <td colspan=\"8\" class=\"text-center\">No students enrolled in this course.</td>
                 </tr>
             `;
             return;
         }
-        
-        // Filter students based on statusFilter
-        let filteredStudents = records;
-        if (statusFilter === "good") {
-            filteredStudents = records.filter(student => {
-                const total = student.presentCount + student.absentCount + student.leaveCount;
-                return (student.presentCount / total * 100) >= 75;
-            });
-        } else if (statusFilter === "warning") {
-            filteredStudents = records.filter(student => {
-                const total = student.presentCount + student.absentCount + student.leaveCount;
-                const percentage = student.presentCount / total * 100;
-                return percentage >= 60 && percentage < 75;
-            });
-        } else if (statusFilter === "critical") {
-            filteredStudents = records.filter(student => {
-                const total = student.presentCount + student.absentCount + student.leaveCount;
-                return (student.presentCount / total * 100) < 60;
-            });
-        }
-        
-        // Generate table rows
+        // Generate table rows for all students (no filter)
         let rowsHTML = "";
-        filteredStudents.forEach(student => {
-            // Calculate attendance stats
+        records.forEach(student => {
             const totalSessions = student.presentCount + student.absentCount + student.leaveCount;
             const attendancePercentage = totalSessions > 0 ? (student.presentCount / totalSessions * 100).toFixed(1) : 0;
-            
-            // Determine status class
             let statusClass = attendancePercentage >= 75 ? "status-good" : 
                              attendancePercentage >= 60 ? "status-warning" : 
                              "status-critical";
-            
             rowsHTML += `
                 <tr>
                     <td>${student.regNumber}</td>
@@ -282,17 +219,7 @@ async function loadStudentAttendance(courseId, statusFilter = "all") {
                 </tr>
             `;
         });
-        
-        if (filteredStudents.length === 0) {
-            studentAttendanceList.innerHTML = `
-                <tr>
-                    <td colspan="8" class="text-center">No students match the selected filter.</td>
-                </tr>
-            `;
-        } else {
-            studentAttendanceList.innerHTML = rowsHTML;
-        }
-        
+        studentAttendanceList.innerHTML = rowsHTML;
         // Add click event to view detail buttons
         document.querySelectorAll(".view-detail-btn").forEach(button => {
             button.addEventListener("click", function() {
@@ -301,16 +228,14 @@ async function loadStudentAttendance(courseId, statusFilter = "all") {
                 const regNumber = this.dataset.regNumber;
                 const courseId = document.getElementById("student-attendance-section").dataset.courseId;
                 const courseName = document.getElementById("selected-course-title").textContent;
-                
                 showStudentDetail(courseId, courseName, studentId, studentName, regNumber);
             });
         });
-        
     } catch (error) {
         console.error("Error loading student attendance:", error);
         studentAttendanceList.innerHTML = `
             <tr>
-                <td colspan="8" class="text-center text-danger">Error: ${error.message}</td>
+                <td colspan=\"8\" class=\"text-center text-danger\">Error: ${error.message}</td>
             </tr>
         `;
     }

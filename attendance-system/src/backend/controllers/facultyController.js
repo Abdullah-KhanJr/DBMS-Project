@@ -20,7 +20,7 @@ exports.getCourses = async (req, res) => {
     const { faculty_id } = req.query;
     try {
         const result = await db.query(
-            `SELECT course_id, course_code, course_title, credit_hours, section, semester FROM courses WHERE faculty_id = $1`,
+            `SELECT course_id, course_code, course_title, credit_hours, section FROM courses WHERE faculty_id = $1`,
             [faculty_id]
         );
         res.json({ success: true, courses: result.rows });

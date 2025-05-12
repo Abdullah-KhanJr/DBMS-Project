@@ -104,25 +104,13 @@
                         <div class="card-header">
                             <div class="header-with-actions">
                                 <h3>Attendance Details</h3>
-                                <div class="filter-controls">
-                                    <!-- Removed All Statuses dropdown and Export CSV button -->
-                                </div>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="table-container">
                                 <table class="data-table">
                                     <thead>
-                                        <tr>
-                                            <th>Registration No.</th>
-                                            <th>Name</th>
-                                            <th>Present</th>
-                                            <th>Absent</th>
-                                            <th>Leave</th>
-                                            <th>Total</th>
-                                            <th>Percentage</th>
-                                            <th>Actions</th>
-                                        </tr>
+                                        <!-- Remove the static header row here, let JS render the header dynamically -->
                                     </thead>
                                     <tbody id="student-attendance-list">
                                         <!-- Will be populated by JavaScript -->
