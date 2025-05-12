@@ -157,6 +157,7 @@ async function loadCourses() {
                             <p style="margin-top:0.25rem;"><strong>Section:</strong> ${course.section || 'N/A'}</p>
                             <p style="margin-top:0.5rem;"><strong>Sessions Conducted:</strong> ${sessionsCount}</p>
                             <p style="margin-top:0.25rem;"><strong>Attendance:</strong> ${attendancePercentage}%</p>
+                            <p style="margin-top:0.25rem;"><strong>Credit Hours:</strong> ${course.credit_hours || 'N/A'}</p>
                         </div>
                     <div class="course-actions">
                             <a href="course-details.html?id=${course.course_id}" class="btn-small">View Details</a>
