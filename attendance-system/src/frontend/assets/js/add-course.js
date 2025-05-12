@@ -65,12 +65,12 @@ async function handleFormSubmission(event) {
   // Prepare course data - use exactly the same field names as expected by backend
   const courseData = {
     course_code: courseCode,
-    course_name: courseName,
+    course_title: courseName,
     credit_hours: creditHours,
+    faculty_id: facultyId,
     section: section,
     description: description,
-    semester: semester,
-    faculty_id: facultyId // Include the faculty ID in the request
+    semester: semester
   };
   
   console.log('Submitting course data:', courseData);
@@ -183,6 +183,9 @@ async function handleFormSubmission(event) {
       window.location.href = './dashboard.html';
     }, 1500);
     
+    // After successful course addition, trigger reloads on other pages (e.g., via localStorage flag or event)
+    // ... existing code ...
+    
   } catch (error) {
     console.error('Error creating course:', error);
     
@@ -243,5 +246,50 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('Found alternate form, attaching event handler');
       anyForm.addEventListener('submit', handleFormSubmission);
     }
+  }
+
+  // Assume you have two dropdowns: course_code_select and course_title_select
+  // Add event listeners to synchronize them
+  const courseCodeSelect = document.getElementById('course_code');
+  const courseTitleSelect = document.getElementById('course_title');
+
+  // Example mapping (should be fetched from backend in real app)
+  const courseMap = {
+    'CS101': 'Introduction to Programming',
+    'CS102': 'Object Oriented Programming',
+    'CS231': 'Discrete Math',
+    'CS221': 'Data Structures and Algorithms',
+    'CE222': 'Computer Organization and Assembly Language',
+    'CE221': 'Digital Logic Design',
+    'HM101': 'Communication Skills',
+    'HM102': 'Advance Communication',
+    'MT101': 'Calculus 1',
+    'MT102': 'Linear Algebra',
+    'ES205': 'Advance Linear Algebra',
+    'HM211': 'Pakistan Studies and Islamyat',
+    'SE201': 'Introduction to Software Engineering',
+    'SE211': 'Requirement Engineering'
+  };
+
+  if (courseCodeSelect && courseTitleSelect) {
+    // Populate both dropdowns
+    courseCodeSelect.innerHTML = '<option value="">Select Course Code</option>';
+    courseTitleSelect.innerHTML = '<option value="">Select Course Title</option>';
+    Object.entries(courseMap).forEach(([code, title]) => {
+      courseCodeSelect.innerHTML += `<option value="${code}">${code}</option>`;
+      courseTitleSelect.innerHTML += `<option value="${title}">${title}</option>`;
+    });
+
+    // Sync code -> title
+    courseCodeSelect.addEventListener('change', function() {
+      const selectedCode = this.value;
+      courseTitleSelect.value = courseMap[selectedCode] || '';
+    });
+    // Sync title -> code
+    courseTitleSelect.addEventListener('change', function() {
+      const selectedTitle = this.value;
+      const foundCode = Object.keys(courseMap).find(code => courseMap[code] === selectedTitle);
+      courseCodeSelect.value = foundCode || '';
+    });
   }
 });

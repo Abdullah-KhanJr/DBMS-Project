@@ -71,97 +71,94 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Load dashboard statistics
-function loadDashboardStats() {
-    // These would normally come from an API call to your backend
-    // For now, using mock data
-    const mockStats = {
-        courseCount: 4,
-        studentCount: 120,
-        sessionCount: 24
-    };
-    
-    const courseCount = document.getElementById('course-count');
-    const studentCount = document.getElementById('student-count');
-    const sessionCount = document.getElementById('session-count');
-    
-    if (courseCount) courseCount.textContent = mockStats.courseCount;
-    if (studentCount) studentCount.textContent = mockStats.studentCount;
-    if (sessionCount) sessionCount.textContent = mockStats.sessionCount;
+async function loadDashboardStats() {
+    const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    const facultyId = userData?.facultyId || userData?.faculty_id;
+
+    let courseCount = 0;
+    let studentCount = 0;
+    let sessionCount = 0;
+
+    try {
+        // Fetch courses for this faculty
+        const coursesRes = await fetch(`/api/faculty/courses?faculty_id=${facultyId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const coursesData = await coursesRes.json();
+        const courses = coursesData.courses || [];
+        courseCount = courses.length;
+
+        // Fetch students for each course and sum
+        for (const course of courses) {
+            const studentsRes = await fetch(`/api/faculty/courses/students?course_id=${course.course_id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const studentsData = await studentsRes.json();
+            studentCount += (studentsData.students || []).length;
+        }
+
+        // Fetch sessions for each course and sum
+        for (const course of courses) {
+            const sessionsRes = await fetch(`/api/faculty/attendance/records?course_id=${course.course_id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const sessionsData = await sessionsRes.json();
+            sessionCount += (sessionsData.records || []).length;
+        }
+    } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+    }
+
+    // Update the DOM
+    const courseCountElem = document.getElementById('course-count');
+    const studentCountElem = document.getElementById('student-count');
+    const sessionCountElem = document.getElementById('session-count');
+    if (courseCountElem) courseCountElem.textContent = courseCount;
+    if (studentCountElem) studentCountElem.textContent = studentCount;
+    if (sessionCountElem) sessionCountElem.textContent = sessionCount;
 }
 
 // Load faculty courses
-function loadFacultyCourses() {
+async function loadFacultyCourses() {
     const courseListElement = document.getElementById('faculty-course-list');
     if (!courseListElement) return;
-    
-    // Mock course data (replace with actual API call)
-    const courses = [
-        {
-            id: "CS101",
-            name: "Introduction to Programming",
-            students: 35,
-            schedule: "Mon, Wed 10:00 AM",
-            attendanceRate: 92
-        },
-        {
-            id: "CS232",
-            name: "Database Management Systems",
-            students: 28,
-            schedule: "Tue, Thu 1:00 PM",
-            attendanceRate: 88
-        },
-        {
-            id: "MATH205",
-            name: "Discrete Mathematics",
-            students: 32,
-            schedule: "Mon, Wed, Fri 9:00 AM",
-            attendanceRate: 76
-        },
-        {
-            id: "CS360",
-            name: "Software Engineering",
-            students: 25,
-            schedule: "Thu 3:00 PM",
-            attendanceRate: 94
-        }
-    ];
-    
-    let coursesHTML = '';
-    
-    if (courses.length === 0) {
-        coursesHTML = '<div class="empty-state"><p>You are not teaching any courses.</p></div>';
-    } else {
-        courses.forEach(course => {
-            // Determine color based on attendance rate
-            let statusColor = course.attendanceRate >= 90 ? 'var(--success-color)' : 
-                            course.attendanceRate >= 80 ? 'var(--warning-color)' : 
-                            'var(--danger-color)';
-            
-            coursesHTML += `
-                <div class="course-card">
-                    <div class="course-header">
-                        <h3>${course.name}</h3>
-                        <span class="course-code">${course.id}</span>
-                    </div>
-                    <div class="course-info">
-                        <p><i class="fas fa-users"></i> ${course.students} Students</p>
-                        <p><i class="fas fa-clock"></i> ${course.schedule}</p>
-                    </div>
-                    <div class="course-attendance">
-                        <div class="attendance-bar">
-                            <div class="attendance-progress" style="width: ${course.attendanceRate}%; background-color: ${statusColor};"></div>
-                        </div>
-                        <span>${course.attendanceRate}% Average Attendance</span>
-                    </div>
-                    <div class="course-actions">
-                        <a href="generate-qr.html?id=${course.id}" class="btn-small">Generate QR</a>
-                        <a href="course-details.html?id=${course.id}" class="btn-small" style="margin-left: 5px;">View Details</a>
-                    </div>
-                </div>
-            `;
+
+    const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    const facultyId = userData?.facultyId || userData?.faculty_id;
+
+    try {
+        const response = await fetch(`/api/faculty/courses?faculty_id=${facultyId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
+        const data = await response.json();
+        const courses = data.courses || [];
+
+        let coursesHTML = '';
+        if (courses.length === 0) {
+            coursesHTML = '<div class="empty-state"><p>You are not teaching any courses.</p></div>';
+        } else {
+            courses.forEach(course => {
+                coursesHTML += `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h3>${course.course_title}</h3>
+                            <span class="course-code">${course.course_code}</span>
+                        </div>
+                        <div class="course-info">
+                            <p><i class="fas fa-users"></i> Section: ${course.section || 'N/A'}</p>
+                            <p><i class="fas fa-clock"></i> Semester: ${course.semester}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        courseListElement.innerHTML = coursesHTML;
+    } catch (error) {
+        courseListElement.innerHTML = '<div class="error-state"><p>Error loading courses: ' + error.message + '</p></div>';
     }
-    
-    courseListElement.innerHTML = coursesHTML;
 }
 

@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load faculty courses for both dropdowns
     async function loadCourses() {
         try {
-            const response = await fetch('http://localhost:5000/api/faculty/courses', {
+            const response = await fetch('/api/faculty/courses', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -81,11 +81,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             });
             
-            if (!response.ok) {
-                throw new Error('Failed to fetch courses');
-            }
-            
-            const courses = await response.json();
+            const data = await response.json();
+            const courses = data.courses || [];
             
             // Clear dropdowns
             if (courseDropdown) courseDropdown.innerHTML = '<option value="">Select Course</option>';
@@ -135,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             };
             
             try {
-                const response = await fetch('http://localhost:5000/api/enrollment', {
+                const response = await fetch('/api/faculty/courses/add-student', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -187,7 +184,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         studentsList.innerHTML = '<tr><td colspan="5" class="text-center">Loading students...</td></tr>';
         
         try {
-            const response = await fetch(`http://localhost:5000/api/courses/${courseId}/students`, {
+            const response = await fetch(`/api/faculty/courses/students?course_id=${courseId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -195,11 +192,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             });
             
-            if (!response.ok) {
-                throw new Error('Failed to fetch students');
-            }
-            
-            const students = await response.json();
+            const data = await response.json();
+            const students = data.students || [];
             
             if (students.length === 0) {
                 studentsList.innerHTML = '<tr><td colspan="5" class="text-center">No students enrolled in this course</td></tr>';
@@ -265,7 +259,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (!currentRemovalData) return;
             
             try {
-                const response = await fetch(`http://localhost:5000/api/enrollment`, {
+                const response = await fetch('/api/faculty/enrollment', {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`,

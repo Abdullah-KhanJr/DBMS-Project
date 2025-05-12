@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
+const facultyRoutes = require('./routes/facultyRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/faculty', facultyRoutes);
 
 // Serve the main index page for root requests
 app.get('/', (req, res) => {

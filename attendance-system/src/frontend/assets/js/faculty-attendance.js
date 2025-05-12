@@ -47,7 +47,8 @@ async function loadCourses() {
         });
         
         if (response.ok) {
-            const courses = await response.json();
+            const data = await response.json();
+            const courses = data.courses || [];
             
             // Clear existing options except the first one
             courseDropdown.innerHTML = '<option value="">Select Course</option>';
@@ -186,14 +187,15 @@ async function loadEnrolledStudents(courseId, sessionId) {
     const studentsList = document.getElementById('students-list');
     
     try {
-        const response = await fetch(`/api/faculty/enrolled-students/${courseId}`, {
+        const response = await fetch(`/api/faculty/courses/students?course_id=${courseId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         
         if (response.ok) {
-            const students = await response.json();
+            const data = await response.json();
+            const students = data.students || [];
             
             if (students.length === 0) {
                 studentsList.innerHTML = `
@@ -266,20 +268,18 @@ async function saveAttendance(e) {
             };
         });
         
-        const response = await fetch('/api/faculty/save-attendance', {
+        const response = await fetch('/api/faculty/attendance/mark', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                session_id: sessionId,
-                attendance: attendanceData
-            })
+            body: JSON.stringify(attendanceData)
         });
         
         if (response.ok) {
-            showStatusMessage('Attendance saved successfully!', 'success');
+            const result = await response.json();
+            showStatusMessage(result.message, result.type);
             
             // Hide attendance section after 2 seconds
             setTimeout(() => {
