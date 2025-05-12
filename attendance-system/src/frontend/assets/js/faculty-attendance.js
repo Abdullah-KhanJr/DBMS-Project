@@ -37,10 +37,12 @@ document.addEventListener('DOMContentLoaded', async function() {    // Verify fa
 // Load faculty courses for dropdown
 async function loadCourses() {
     const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    const facultyId = userData?.facultyId || userData?.faculty_id;
     const courseDropdown = document.getElementById('course_id');
     
     try {
-        const response = await fetch('/api/faculty/courses', {
+        const response = await fetch(`/api/faculty/courses?faculty_id=${facultyId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -50,23 +52,20 @@ async function loadCourses() {
             const data = await response.json();
             const courses = data.courses || [];
             
-            // Clear existing options except the first one
+            // Clear existing options
             courseDropdown.innerHTML = '<option value="">Select Course</option>';
             
-            // Add course options
+            // Add course options with section information
             courses.forEach(course => {
-                const option = document.createElement('option');
-                option.value = course.id;
-                option.textContent = `${course.course_code} - ${course.course_title}`;
-                courseDropdown.appendChild(option);
+                courseDropdown.innerHTML += `<option value="${course.course_id}">${course.course_code} - ${course.course_title} (Section: ${course.section || 'N/A'})</option>`;
             });
-            
         } else {
             throw new Error('Failed to load courses');
         }
     } catch (error) {
         console.error('Error fetching courses:', error);
         showStatusMessage('Error loading courses: ' + error.message, 'error');
+        courseDropdown.innerHTML = '<option value="">Error loading courses</option>';
     }
 }
 

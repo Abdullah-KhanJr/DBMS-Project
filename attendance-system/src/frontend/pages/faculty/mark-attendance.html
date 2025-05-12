@@ -87,32 +87,34 @@
                         </div>
                         <div class="card-body">
                             <form id="create-session-form">
-                                <div class="form-group">
-                                    <label for="course_id">Course*</label>
-                                    <select id="course_id" name="course_id" required>
-                                        <option value="">Select Course</option>
-                                        <!-- Will be populated dynamically -->
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="session_date">Date*</label>
-                                    <input type="date" id="session_date" name="session_date" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="session_time">Time*</label>
-                                    <input type="time" id="session_time" name="session_time" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="duration">Duration (minutes)*</label>
-                                    <input type="number" id="duration" name="duration" min="30" max="180" value="60" required>
-                                </div>
-                                
-                                <div class="form-actions">
-                                    <button type="submit" class="btn-primary">Create Session</button>
-                                </div>
+<div class="form-group">
+    <label for="course_id">Course*</label>
+    <select id="course_id" name="course_id" required>
+        <option value="">Select Course</option>
+        <!-- Will be populated by JavaScript -->
+    </select>
+</div>
+
+    <div class="form-group">
+        <label for="session_date">Date*</label>
+            <input type="date" id="session_date" name="session_date" required>
+                            </div>
+
+                <div class="form-group">
+                                <label for="session_time">Time*</label>
+                                <input type="time" id="session_time" name="session_time" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="duration">Duration (minutes)*</label>
+                                <input type="number" id="duration" name="duration" value="60" min="15" max="180" required>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-plus-circle"></i> Create Session
+                                </button>
+                            </div>
                             </form>
                         </div>
                     </div>
