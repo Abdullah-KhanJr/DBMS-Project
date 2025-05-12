@@ -81,50 +81,14 @@ async function loadCourseCards() {
     try {
         courseAttendanceSummary.innerHTML = "<div class=\"loading-spinner\">Loading courses...</div>";
         
-        // For demo purposes, we'll create mock data
-        // In a real app, you would fetch this from an API
-        const courses = [
-            {
-                id: "CS101",
-                name: "Introduction to Programming",
-                code: "CS101",
-                studentCount: 35,
-                attendanceRate: 92,
-                presentCount: 320,
-                absentCount: 30,
-                totalSessions: 10
-            },
-            {
-                id: "CS102",
-                name: "Data Structures",
-                code: "CS102",
-                studentCount: 28,
-                attendanceRate: 86,
-                presentCount: 240,
-                absentCount: 40,
-                totalSessions: 8
-            },
-            {
-                id: "CS232",
-                name: "Database Management Systems",
-                code: "CS232",
-                studentCount: 32,
-                attendanceRate: 78,
-                presentCount: 250,
-                absentCount: 70,
-                totalSessions: 9
-            },
-            {
-                id: "MT101",
-                name: "Calculus",
-                code: "MT101",
-                studentCount: 40,
-                attendanceRate: 94,
-                presentCount: 380,
-                absentCount: 20,
-                totalSessions: 10
+        const token = localStorage.getItem("token");
+        const response = await fetch('/api/faculty/courses', {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        ];
+        });
+        const data = await response.json();
+        const courses = data.courses || [];
         
         if (courses.length === 0) {
             courseAttendanceSummary.innerHTML = `
@@ -244,52 +208,16 @@ async function loadStudentAttendance(courseId, statusFilter = "all") {
     try {
         studentAttendanceList.innerHTML = "<tr><td colspan=\"8\" class=\"text-center\">Loading attendance data...</td></tr>";
         
-        // For demo purposes, we'll use mock data
-        // In a real app, you would fetch this from an API
-        const students = [
-            {
-                id: "s1",
-                regNumber: "FA22-BCS-001",
-                name: "John Doe",
-                presentCount: 8,
-                absentCount: 2,
-                leaveCount: 0
-            },
-            {
-                id: "s2",
-                regNumber: "FA22-BCS-002",
-                name: "Jane Smith",
-                presentCount: 9,
-                absentCount: 1,
-                leaveCount: 0
-            },
-            {
-                id: "s3",
-                regNumber: "FA22-BCS-003",
-                name: "Robert Johnson",
-                presentCount: 6,
-                absentCount: 3,
-                leaveCount: 1
-            },
-            {
-                id: "s4",
-                regNumber: "FA22-BCS-004",
-                name: "Emily Brown",
-                presentCount: 7,
-                absentCount: 2,
-                leaveCount: 1
-            },
-            {
-                id: "s5",
-                regNumber: "FA22-BCS-005",
-                name: "Michael Wilson",
-                presentCount: 5,
-                absentCount: 4,
-                leaveCount: 1
+        const token = localStorage.getItem("token");
+        const response = await fetch(`/api/faculty/attendance/records?course_id=${courseId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        ];
+        });
+        const data = await response.json();
+        const records = data.records || [];
         
-        if (students.length === 0) {
+        if (records.length === 0) {
             studentAttendanceList.innerHTML = `
                 <tr>
                     <td colspan="8" class="text-center">No students enrolled in this course.</td>
@@ -299,20 +227,20 @@ async function loadStudentAttendance(courseId, statusFilter = "all") {
         }
         
         // Filter students based on statusFilter
-        let filteredStudents = students;
+        let filteredStudents = records;
         if (statusFilter === "good") {
-            filteredStudents = students.filter(student => {
+            filteredStudents = records.filter(student => {
                 const total = student.presentCount + student.absentCount + student.leaveCount;
                 return (student.presentCount / total * 100) >= 75;
             });
         } else if (statusFilter === "warning") {
-            filteredStudents = students.filter(student => {
+            filteredStudents = records.filter(student => {
                 const total = student.presentCount + student.absentCount + student.leaveCount;
                 const percentage = student.presentCount / total * 100;
                 return percentage >= 60 && percentage < 75;
             });
         } else if (statusFilter === "critical") {
-            filteredStudents = students.filter(student => {
+            filteredStudents = records.filter(student => {
                 const total = student.presentCount + student.absentCount + student.leaveCount;
                 return (student.presentCount / total * 100) < 60;
             });
@@ -411,50 +339,22 @@ async function showStudentDetail(courseId, courseName, studentId, studentName, r
         // Display the modal
         studentDetailModal.style.display = "block";
         
-        // For demo purposes, we'll use mock data
-        // In a real app, you would fetch this from an API
-        const studentData = {
-            summary: {
-                presentCount: 8,
-                absentCount: 2,
-                leaveCount: 0
-            },
-            sessions: [
-                {
-                    date: "2025-05-02",
-                    status: "present",
-                    remarks: ""
-                },
-                {
-                    date: "2025-05-04",
-                    status: "present",
-                    remarks: ""
-                },
-                {
-                    date: "2025-05-06",
-                    status: "absent",
-                    remarks: "Sick leave"
-                },
-                {
-                    date: "2025-05-09",
-                    status: "present",
-                    remarks: ""
-                },
-                {
-                    date: "2025-05-11",
-                    status: "present",
-                    remarks: ""
-                }
-            ]
-        };
+        const token = localStorage.getItem("token");
+        const response = await fetch(`/api/faculty/attendance/records?course_id=${courseId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        const records = data.records || [];
         
         // Update attendance summary
-        if (detailPresentCount) detailPresentCount.textContent = studentData.summary.presentCount;
-        if (detailAbsentCount) detailAbsentCount.textContent = studentData.summary.absentCount;
-        if (detailLeaveCount) detailLeaveCount.textContent = studentData.summary.leaveCount;
+        if (detailPresentCount) detailPresentCount.textContent = records.reduce((total, student) => total + student.presentCount, 0);
+        if (detailAbsentCount) detailAbsentCount.textContent = records.reduce((total, student) => total + student.absentCount, 0);
+        if (detailLeaveCount) detailLeaveCount.textContent = records.reduce((total, student) => total + student.leaveCount, 0);
         
-        const totalSessions = studentData.summary.presentCount + studentData.summary.absentCount + studentData.summary.leaveCount;
-        const attendancePercentage = totalSessions > 0 ? ((studentData.summary.presentCount / totalSessions) * 100).toFixed(1) : 0;
+        const totalSessions = records.reduce((total, student) => total + (student.presentCount + student.absentCount + student.leaveCount), 0);
+        const attendancePercentage = totalSessions > 0 ? ((records.reduce((total, student) => total + student.presentCount, 0) / totalSessions) * 100).toFixed(1) : 0;
         
         if (detailPercentage) {
             const statusClass = attendancePercentage >= 75 ? "text-success" : 
@@ -466,21 +366,21 @@ async function showStudentDetail(courseId, courseName, studentId, studentName, r
         
         // Generate session table rows
         if (studentSessionList) {
-            if (studentData.sessions.length === 0) {
+            if (records.length === 0) {
                 studentSessionList.innerHTML = "<tr><td colspan=\"3\" class=\"text-center\">No attendance records found.</td></tr>";
             } else {
                 let sessionRowsHTML = "";
-                studentData.sessions.forEach(session => {
-                    const sessionDate = new Date(session.date).toLocaleDateString();
-                    const statusClass = session.status === "present" ? "status-present" : 
-                                       session.status === "absent" ? "status-absent" : 
+                records.forEach(student => {
+                    const sessionDate = new Date(student.date).toLocaleDateString();
+                    const statusClass = student.status === "present" ? "status-present" : 
+                                       student.status === "absent" ? "status-absent" : 
                                        "status-leave";
                     
                     sessionRowsHTML += `
                         <tr>
                             <td>${sessionDate}</td>
-                            <td><span class="${statusClass}">${session.status.toUpperCase()}</span></td>
-                            <td>${session.remarks || "No remarks"}</td>
+                            <td><span class="${statusClass}">${student.status.toUpperCase()}</span></td>
+                            <td>${student.remarks || "No remarks"}</td>
                         </tr>
                     `;
                 });
