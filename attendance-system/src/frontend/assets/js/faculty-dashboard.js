@@ -150,6 +150,7 @@ async function loadFacultyCourses() {
                         </div>
                         <div class="course-info">
                             <p><i class="fas fa-users"></i> Section: ${course.section || 'N/A'}</p>
+                            <p style="margin-top:0.25rem;"><strong>Credit Hours:</strong> ${course.credit_hours || 'N/A'}</p>
                         </div>
                     </div>
                 `;
