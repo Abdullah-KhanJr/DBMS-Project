@@ -79,12 +79,24 @@ async function loadCourseCards() {
         }
         // Create course cards
         let cardsHTML = "";
-        courses.forEach(course => {
-            // Determine color based on attendance rate (optional, can be improved)
-            let statusColor = "var(--success-color)";
+        for (const course of courses) {
+            // Fetch student and session counts for each course
+            let studentCount = 0;
+            let sessionCount = 0;
+            try {
+                // Fetch students
+                const studentsRes = await fetch(`/api/faculty/attendance/matrix?course_id=${course.course_id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const studentsData = await studentsRes.json();
+                studentCount = (studentsData.students || []).length;
+                sessionCount = (studentsData.sessions || []).length;
+            } catch (e) {
+                // fallback to 0 if error
+            }
             cardsHTML += `
-                <div class=\"course-card attendance-card\" data-course-id=\"${course.course_id}\">\n                    <div class=\"course-header\">\n                        <h3>${course.course_title}</h3>\n                        <span class=\"course-code\">${course.course_code}</span>\n                    </div>\n                    <div class=\"course-info\">\n                        <p><i class=\"fas fa-users\"></i> Section: ${course.section || 'N/A'}</p>\n                        <p><i class=\"fas fa-clock\"></i> Semester: ${course.semester || ''}</p>\n                    </div>\n                    <div class=\"course-actions\">\n                        <button class=\"btn-primary view-attendance-btn\">\n                            <i class=\"fas fa-clipboard-list\"></i> View Attendance\n                        </button>\n                    </div>\n                </div>\n            `;
-        });
+                <div class=\"course-card attendance-card\" data-course-id=\"${course.course_id}\">\n                    <div class=\"course-header\">\n                        <h3>${course.course_title}</h3>\n                        <span class=\"course-code\">${course.course_code}</span>\n                    </div>\n                    <div class=\"course-info\">\n                        <p><i class=\"fas fa-users\"></i> Section: ${course.section || 'N/A'}</p>\n                        <p><i class=\"fas fa-user-graduate\"></i> Students: ${studentCount}</p>\n                        <p><i class=\"fas fa-calendar-check\"></i> Sessions: ${sessionCount}</p>\n                    </div>\n                    <div class=\"course-actions\">\n                        <button class=\"btn-primary view-attendance-btn\">\n                            <i class=\"fas fa-clipboard-list\"></i> View Attendance\n                        </button>\n                    </div>\n                </div>\n            `;
+        }
         courseAttendanceSummary.innerHTML = cardsHTML;
         // Add click event to the cards
         document.querySelectorAll(".view-attendance-btn").forEach(button => {
