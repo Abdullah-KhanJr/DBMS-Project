@@ -95,13 +95,22 @@ async function loadCourseCards() {
             `;
             return;
         }
+        // Fetch student counts for each course
+        const studentCounts = {};
+        await Promise.all(courses.map(async (course) => {
+            const res = await fetch(`/api/faculty/courses/students?course_id=${course.course_id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const studentsData = await res.json();
+            studentCounts[course.course_id] = (studentsData.students || []).length;
+        }));
         // Create course cards
         let cardsHTML = "";
         courses.forEach(course => {
-            // Determine color based on attendance rate (optional, can be improved)
             let statusColor = "var(--success-color)";
+            const studentCount = studentCounts[course.course_id] || 0;
             cardsHTML += `
-                <div class=\"course-card attendance-card\" data-course-id=\"${course.course_id}\">\n                    <div class=\"course-header\">\n                        <h3>${course.course_title}</h3>\n                        <span class=\"course-code\">${course.course_code}</span>\n                    </div>\n                    <div class=\"course-info\">\n                        <p><i class=\"fas fa-users\"></i> Section: ${course.section || 'N/A'}</p>\n                        <p><i class=\"fas fa-clock\"></i> Semester: ${course.semester || ''}</p>\n                    </div>\n                    <div class=\"course-actions\">\n                        <button class=\"btn-primary view-attendance-btn\">\n                            <i class=\"fas fa-clipboard-list\"></i> View Attendance\n                        </button>\n                    </div>\n                </div>\n            `;
+                <div class=\"course-card attendance-card\" data-course-id=\"${course.course_id}\">\n                    <div class=\"course-header\">\n                        <h3>${course.course_title}</h3>\n                        <span class=\"course-code\">${course.course_code}</span>\n                    </div>\n                    <div class=\"course-info\">\n                        <p><i class=\"fas fa-users\"></i> Students: ${studentCount}</p>\n                    </div>\n                    <div class=\"course-actions\">\n                        <button class=\"btn-primary view-attendance-btn\">\n                            <i class=\"fas fa-clipboard-list\"></i> View Attendance\n                        </button>\n                    </div>\n                </div>\n            `;
         });
         courseAttendanceSummary.innerHTML = cardsHTML;
         // Add click event to the cards
@@ -159,8 +168,8 @@ async function loadStudentAttendanceMatrix(courseId) {
             if (!attendanceMap[a.registration_number]) attendanceMap[a.registration_number] = {};
             attendanceMap[a.registration_number][a.session_id] = a.status_label;
         });
-        // Build table header
-        let headerHtml = '<tr><th>Registration No.</th><th>Name</th>';
+        // Build table header (with scrollable session columns)
+        let headerHtml = '<tr><th>Registration No.</th><th>Name</th><th>Present</th><th>Absent</th><th>Leave</th><th>Total</th><th>Percentage</th>';
         sessions.forEach((session, idx) => {
             headerHtml += `<th>Session ${idx + 1}<br><span style=\"font-size:10px\">${session.session_date}</span></th>`;
         });
@@ -168,7 +177,16 @@ async function loadStudentAttendanceMatrix(courseId) {
         // Build table rows
         let rowsHtml = '';
         students.forEach(student => {
-            rowsHtml += `<tr><td>${student.registration_number}</td><td>${student.name}</td>`;
+            let present = 0, absent = 0, leave = 0;
+            sessions.forEach(session => {
+                const status = attendanceMap[student.registration_number]?.[session.session_id] || '';
+                if (status === 'Present') present++;
+                else if (status === 'Absent') absent++;
+                else if (status === 'Leave') leave++;
+            });
+            const total = sessions.length;
+            const percentage = total > 0 ? ((present / total) * 100).toFixed(1) : '0.0';
+            rowsHtml += `<tr><td>${student.registration_number}</td><td>${student.name}</td><td>${present}</td><td>${absent}</td><td>${leave}</td><td>${total}</td><td>${percentage}%</td>`;
             sessions.forEach(session => {
                 const status = attendanceMap[student.registration_number]?.[session.session_id] || '';
                 let cell = '';
@@ -180,7 +198,9 @@ async function loadStudentAttendanceMatrix(courseId) {
             });
             rowsHtml += '</tr>';
         });
-        studentAttendanceList.innerHTML = headerHtml + rowsHtml;
+        // Wrap the session columns in a scrollable div
+        const tableHtml = `<div style="overflow-x:auto;"><table class="data-table">${headerHtml + rowsHtml}</table></div>`;
+        studentAttendanceList.parentElement.innerHTML = tableHtml;
     } catch (error) {
         console.error("Error loading student attendance matrix:", error);
         studentAttendanceList.innerHTML = `<tr><td colspan="100" class="text-center text-danger">Error: ${error.message}</td></tr>`;
