@@ -119,7 +119,6 @@ async function loadCourseSessions() {
                     <td>${session.course_code} - ${session.course_title}</td>
                     <td>${session.credit_hours}</td>
                     <td>${session.sessions_conducted}</td>
-                    <td>${session.max_sessions}</td>
                 </tr>
             `).join('');
             

@@ -98,24 +98,18 @@ exports.markAttendance = async (req, res) => {
     if (!Array.isArray(attendance)) {
         return res.status(400).json({ success: false, error: 'Attendance must be an array.' });
     }
-    const client = await db.connect();
     try {
-        await client.query('BEGIN');
         for (const record of attendance) {
             const { registration_number, status_id, attendance_date, attendance_time, marked_by } = record;
-            await client.query(
+            await db.query(
                 `INSERT INTO attendance (registration_number, course_id, session_id, status_id, attendance_date, attendance_time, marked_by)
                  VALUES ($1, $2, $3, $4, $5, $6, $7)`,
                 [registration_number, course_id, session_id, status_id, attendance_date, attendance_time, marked_by]
             );
         }
-        await client.query('COMMIT');
         res.status(201).json({ success: true, message: 'Attendance saved successfully.' });
     } catch (err) {
-        await client.query('ROLLBACK');
         res.status(500).json({ success: false, error: err.message });
-    } finally {
-        client.release();
     }
 };
 
