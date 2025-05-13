@@ -104,25 +104,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (enrollResponse.ok && enrollData.success) {
                     // Enrollment successful
-                    statusBox.textContent = `Student has been enrolled successfully.`;
-                    statusBox.style.color = 'green';
-                    statusBox.style.background = '#e8f5e9';
-                    statusBox.style.display = 'block';
-                    
+                    showNotification('Student has been enrolled successfully.', 'success');
                     // Clear form
                     regInput.value = '';
                 } else {
                     // Enrollment failed
-                    statusBox.textContent = enrollData.error || 'Failed to enroll student. The student may already be enrolled in this course.';
-                    statusBox.style.color = 'red';
-                    statusBox.style.background = '#ffebee';
-                    statusBox.style.display = 'block';
+                    showNotification(enrollData.error || 'Failed to enroll student. The student may already be enrolled in this course.', 'error');
                 }
             } catch (error) {
-                statusBox.textContent = 'An error occurred. Please try again.';
-                statusBox.style.color = 'red';
-                statusBox.style.background = '#ffebee';
-                statusBox.style.display = 'block';
+                showNotification('An error occurred. Please try again.', 'error');
                 console.error('Error:', error);
             }
         });

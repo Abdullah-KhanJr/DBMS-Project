@@ -189,7 +189,7 @@ async function createSession(e) {
         }
         
         if (response.ok) {
-            showStatusMessage(`Session created successfully for course ID: ${courseId}`, 'success');
+            showNotification('Session has been created successfully.', 'success');
             
             // Clear form values
             document.getElementById('create-session-form').reset();
@@ -206,7 +206,12 @@ async function createSession(e) {
             // Update sessions list
             await loadCourseSessions();
         } else {
-            throw new Error(data.error || 'Failed to create session');
+            let errorMsg = data.error || 'Failed to create session';
+            if (errorMsg.toLowerCase().includes('duplicate') || errorMsg.toLowerCase().includes('already')) {
+                errorMsg = 'Session is already conducted for this time slot.';
+            }
+            showNotification(errorMsg, 'error');
+            throw new Error(errorMsg);
         }
     } catch (error) {
         console.error('Error creating session:', error);
@@ -356,6 +361,19 @@ function markAllPresent() {
 
 // Show status message
 function showStatusMessage(message, type) {
+    const statusMessage = document.getElementById('status-message');
+    statusMessage.textContent = message;
+    statusMessage.className = `status-message ${type}`;
+    
+    // Clear message after 3 seconds
+    setTimeout(() => {
+        statusMessage.textContent = '';
+        statusMessage.className = 'status-message';
+    }, 3000);
+}
+
+// Show notification
+function showNotification(message, type) {
     const statusMessage = document.getElementById('status-message');
     statusMessage.textContent = message;
     statusMessage.className = `status-message ${type}`;

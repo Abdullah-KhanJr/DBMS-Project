@@ -1,4 +1,3 @@
-
 // Common function to fetch and display faculty name
 async function displayFacultyName() {
     // Get DOM elements
@@ -79,3 +78,27 @@ function updateNameElements(name, facultyNameElements, welcomeNameElements) {
 
 // Run this function when the DOM is loaded
 document.addEventListener('DOMContentLoaded', displayFacultyName);
+
+// Reusable notification function
+function showNotification(message, type = 'success') {
+    let statusBox = document.getElementById('status-message');
+    if (!statusBox) {
+        statusBox = document.createElement('div');
+        statusBox.id = 'status-message';
+        statusBox.className = 'status-message';
+        document.body.appendChild(statusBox);
+    }
+    statusBox.textContent = message;
+    if (type === 'success') {
+        statusBox.style.color = 'green';
+        statusBox.style.background = '#e8f5e9';
+    } else {
+        statusBox.style.color = 'red';
+        statusBox.style.background = '#ffebee';
+    }
+    statusBox.style.display = 'block';
+    setTimeout(() => {
+        statusBox.textContent = '';
+        statusBox.style.display = 'none';
+    }, 3000);
+}
