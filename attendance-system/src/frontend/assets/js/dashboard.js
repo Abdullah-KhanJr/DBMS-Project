@@ -117,29 +117,29 @@ async function loadCourses() {
         }
         const data = await response.json();
         const courses = data.courses || [];
-        updateStats(courses);
-        let coursesHTML = '';
-        if (courses.length === 0) {
-            coursesHTML = '<div class="empty-state"><p>You are not enrolled in any courses.</p></div>';
-        } else {
-            courses.forEach(course => {
-                coursesHTML += `
-                    <div class="course-card">
-                        <div class="course-header">
+    updateStats(courses);
+    let coursesHTML = '';
+    if (courses.length === 0) {
+        coursesHTML = '<div class="empty-state"><p>You are not enrolled in any courses.</p></div>';
+    } else {
+        courses.forEach(course => {
+            coursesHTML += `
+                <div class="course-card">
+                    <div class="course-header">
                             <h3>${course.course_title}</h3>
                             <span class="course-code">${course.course_code}</span>
-                        </div>
-                        <div class="course-info">
+                    </div>
+                    <div class="course-info">
                             <p><i class="fas fa-chalkboard-teacher"></i> ${course.instructor_name || 'N/A'}</p>
                         </div>
-                        <div class="course-actions">
+                    <div class="course-actions">
                             <a href="course-details.html?id=${course.course_id}" class="btn-small">View Details</a>
-                        </div>
                     </div>
-                `;
-            });
-        }
-        courseList.innerHTML = coursesHTML;
+                </div>
+            `;
+        });
+    }
+    courseList.innerHTML = coursesHTML;
     } catch (error) {
         courseList.innerHTML = '<div class="error-state"><p>Error loading courses: ' + error.message + '</p></div>';
         console.error('Error loading courses:', error);

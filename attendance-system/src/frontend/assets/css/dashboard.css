@@ -495,6 +495,12 @@
   border: 1px solid var(--warning-color);
 }
 
+.status-leave {
+  background-color: rgba(237, 137, 54, 0.12);
+  color: var(--warning-color);
+  /* border: 1.5px solid var(--warning-color); */
+}
+
 .recent-attendance {
   margin-top: 2rem;
 }
@@ -1203,4 +1209,32 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.summary-badge {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1.5px solid transparent;
+  min-width: 90px;
+  text-align: center;
+}
+.summary-badge.status-present {
+  background-color: rgba(72, 187, 120, 0.12);
+  color: var(--success-color);
+  border-color: var(--success-color);
+}
+.summary-badge.status-absent {
+  background-color: rgba(229, 62, 62, 0.12);
+  color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+.summary-badge.status-leave {
+  background-color: rgba(237, 137, 54, 0.12);
+  color: var(--warning-color);
+  border-color: var(--warning-color);
 }

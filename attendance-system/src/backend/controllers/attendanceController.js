@@ -45,3 +45,21 @@ exports.getCourseAttendance = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving course attendance records', error });
     }
 };
+
+exports.getStudentCourseAttendance = async (req, res) => {
+    const { registrationNumber, courseId } = req.params;
+    try {
+        const result = await db.query(
+            `SELECT a.session_id, cs.session_date, cs.session_time, ast.label as status_label
+             FROM attendance a
+             JOIN course_sessions cs ON a.session_id = cs.session_id
+             JOIN attendance_status ast ON a.status_id = ast.status_id
+             WHERE a.registration_number = $1 AND a.course_id = $2
+             ORDER BY cs.session_date, cs.session_time`,
+            [registrationNumber, courseId]
+        );
+        res.status(200).json(result.rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving attendance records', error });
+    }
+};

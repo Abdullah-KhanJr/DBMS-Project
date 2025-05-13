@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         studentNameElements.forEach(e => e.textContent = 'Student');
-    }
+            }
     displayStudentName();
     
     // Load attendance history
@@ -111,26 +111,26 @@ async function loadAttendanceHistory() {
         const response = await fetch(`/api/attendance/records/${studentId}`);
         const records = await response.json();
         const last10 = (records || []).slice(0, 10);
-        let historyHTML = '';
+    let historyHTML = '';
         last10.forEach(record => {
-            let statusClass = '';
+        let statusClass = '';
             switch(record.status_label || record.status) {
                 case 'Present': statusClass = 'status-present'; break;
                 case 'Late': statusClass = 'status-late'; break;
                 case 'Absent': statusClass = 'status-absent'; break;
                 case 'Leave': statusClass = 'status-leave'; break;
-            }
-            historyHTML += `
-                <tr>
+        }
+        historyHTML += `
+            <tr>
                     <td>${record.course_title || record.course_id || ''}</td>
                     <td>${record.attendance_date ? new Date(record.attendance_date).toLocaleDateString() : ''}</td>
                     <td>${record.attendance_time ? record.attendance_time.slice(0,5) : ''}</td>
                     <td><span class="attendance-status-badge ${statusClass}">${record.status_label || record.status}</span></td>
-                </tr>
-            `;
-        });
+            </tr>
+        `;
+    });
         if (!historyHTML) historyHTML = '<tr><td colspan="4">No attendance records found.</td></tr>';
-        attendanceHistory.innerHTML = historyHTML;
+    attendanceHistory.innerHTML = historyHTML;
     } catch (error) {
         attendanceHistory.innerHTML = `<tr><td colspan="4">Error loading attendance history: ${error.message}</td></tr>`;
     }

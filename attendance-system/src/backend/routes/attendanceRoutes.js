@@ -16,4 +16,7 @@ router.get('/course/:courseId', authMiddleware.verifyToken, roleMiddleware.isFac
 // Route to retrieve all attendance records (admin)
 router.get('/all', authMiddleware.verifyToken, roleMiddleware.isAdmin, attendanceController.getAllAttendanceRecords);
 
+// Route to retrieve student course attendance
+router.get('/records/:registrationNumber/course/:courseId', authMiddleware.auth, attendanceController.getStudentCourseAttendance);
+
 module.exports = router;
