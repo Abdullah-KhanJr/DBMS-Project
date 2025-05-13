@@ -122,7 +122,30 @@ async function loadCourses() {
     if (courses.length === 0) {
         coursesHTML = '<div class="empty-state"><p>You are not enrolled in any courses.</p></div>';
     } else {
-        courses.forEach(course => {
+        for (const course of courses) {
+            let attendancePercentage = 0;
+            let sessionsCount = 0;
+            try {
+                // Fetch sessions and attendance for this course
+                const matrixRes = await fetch(`/api/faculty/attendance/matrix?course_id=${course.course_id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const matrixData = await matrixRes.json();
+                const sessions = matrixData.sessions || [];
+                sessionsCount = sessions.length;
+                const attendance = matrixData.attendance || [];
+                // Get registration number from userData
+                let userData = null;
+                try { userData = JSON.parse(localStorage.getItem('userData')); } catch (e) {}
+                const registrationNumber = userData?.registrationNumber || userData?.registration_number;
+                // Count present for this student
+                let present = 0;
+                attendance.forEach(a => {
+                    if (String(a.registration_number) === String(registrationNumber) && a.status_label === 'Present') present++;
+                });
+                attendancePercentage = sessionsCount > 0 ? ((present / sessionsCount) * 100).toFixed(1) : '0.0';
+            } catch (e) {}
+            // Add sessions conducted above attendance percentage and below faculty name
             coursesHTML += `
                 <div class="course-card">
                     <div class="course-header">
@@ -131,13 +154,15 @@ async function loadCourses() {
                     </div>
                     <div class="course-info">
                             <p><i class="fas fa-chalkboard-teacher"></i> ${course.instructor_name || 'N/A'}</p>
+                            <p style="margin-top:0.5rem;"><strong>Sessions Conducted:</strong> ${sessionsCount}</p>
+                            <p style="margin-top:0.25rem;"><strong>Attendance:</strong> ${attendancePercentage}%</p>
                         </div>
                     <div class="course-actions">
                             <a href="course-details.html?id=${course.course_id}" class="btn-small">View Details</a>
                     </div>
                 </div>
             `;
-        });
+        }
     }
     courseList.innerHTML = coursesHTML;
     } catch (error) {
