@@ -98,14 +98,14 @@ async function loadDashboardStats() {
             studentCount += (studentsData.students || []).length;
         }
 
-        // Fetch sessions for each course and sum
-        for (const course of courses) {
-            const sessionsRes = await fetch(`/api/faculty/attendance/records?course_id=${course.course_id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const sessionsData = await sessionsRes.json();
-            sessionCount += (sessionsData.records || []).length;
-        }
+        // Fetch sessions conducted by this faculty (across all courses)
+        const sessionsRes = await fetch(`/api/faculty/course-sessions?faculty_id=${facultyId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const sessionsData = await sessionsRes.json();
+        sessionCount = Array.isArray(sessionsData)
+            ? sessionsData.reduce((sum, course) => sum + Number(course.sessions_conducted || 0), 0)
+            : 0;
     } catch (error) {
         console.error('Error loading dashboard stats:', error);
     }
@@ -150,7 +150,6 @@ async function loadFacultyCourses() {
                         </div>
                         <div class="course-info">
                             <p><i class="fas fa-users"></i> Section: ${course.section || 'N/A'}</p>
-                            <p><i class="fas fa-clock"></i> Semester: ${course.semester}</p>
                         </div>
                     </div>
                 `;
