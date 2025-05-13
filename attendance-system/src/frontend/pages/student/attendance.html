@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark Attendance - Student</title>
+    <title>Attendance History - Student</title>
     <link rel="stylesheet" href="../../assets/css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -61,23 +60,14 @@
 
             <div class="dashboard-content">
                 <div class="dashboard-header">
-                    <h1>QR Code Attendance</h1>
-                    <p>Scan a QR code to mark your attendance for today's class</p>
+                    <h1>Attendance History</h1>
+                    <p>View your last 10 attendance records for your enrolled courses</p>
                 </div>
 
                 <div class="attendance-section">
-                    <div class="qr-container">
-                        <div id="qr-reader"></div>
-                        <div id="qr-reader-results"></div>
-                        <button id="scan-button" class="btn-primary">
-                            <i class="fas fa-qrcode"></i> Scan QR Code
-                        </button>
-                    </div>
-                    
                     <div id="attendance-status" class="attendance-status"></div>
-                    
                     <div class="recent-attendance">
-                        <h2>Recent Attendance</h2>
+                        <h2>Attendance History</h2>
                         <div class="attendance-table-container">
                             <table class="attendance-table">
                                 <thead>
@@ -98,22 +88,7 @@
             </div>
         </div>
     </div>
-    
-    <!-- Modal for camera access -->
-    <div id="camera-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Scan QR Code</h2>
-                <span class="modal-close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div id="camera-container"></div>
-                <div id="scan-result"></div>
-            </div>
-        </div>
-    </div>
 
-    <script src="https://unpkg.com/html5-qrcode@2.3.4/html5-qrcode.min.js"></script>
     <script src="../../assets/js/logout.js"></script>
     <script src="../../assets/js/attendance.js"></script>
 </body>

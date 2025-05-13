@@ -1,0 +1,241 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // Redirect to login page if not logged in
+        window.location.href = '../login.html';
+        return;
+    }
+
+    // Get DOM elements
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const profileIcon = document.querySelector('.profile-icon');
+    const logoutBtn = document.getElementById('logout-btn');
+    const logoutLink = document.getElementById('logout-link');
+    const studentName = document.getElementById('student-name');
+    const scanButton = document.getElementById('scan-button');
+    const attendanceStatus = document.getElementById('attendance-status');
+    const attendanceHistory = document.getElementById('attendance-history');
+    const modal = document.getElementById('camera-modal');
+    const closeModal = document.querySelector('.modal-close');
+    
+    // Toggle sidebar on mobile
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+    }
+    
+    // Toggle profile dropdown
+    if (profileIcon) {
+        profileIcon.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!profileIcon.contains(event.target)) {
+                profileIcon.classList.remove('active');
+            }
+        });
+    }
+    
+    // Handle logout
+    function handleLogout(e) {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        window.location.href = '../login.html';
+    }
+    
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    if (logoutLink) logoutLink.addEventListener('click', handleLogout);
+    
+    // Name is now handled by student-common.js
+    
+    // Load the attendance history
+    loadAttendanceHistory();
+    
+    // Load attendance history
+    loadAttendanceHistory();
+});
+
+// Open QR Code scanner
+function openQRScanner() {
+    const modal = document.getElementById('camera-modal');
+    const cameraContainer = document.getElementById('camera-container');
+    const scanResult = document.getElementById('scan-result');
+    
+    // Show the modal
+    modal.style.display = 'flex';
+    
+    // Clear previous results
+    scanResult.innerHTML = 'Initializing camera...';
+    
+    // Initialize the QR scanner
+    const html5QrCode = new Html5Qrcode("camera-container");
+    
+    html5QrCode.start(
+        { facingMode: "environment" },  // Use the back camera
+        {
+            fps: 10,
+            qrbox: 250
+        },
+        (decodedText, decodedResult) => {
+            // QR code scanned successfully
+            console.log(`QR Code detected: ${decodedText}`, decodedResult);
+            
+            // Stop scanning
+            html5QrCode.stop().then(() => {
+                // Show success message
+                scanResult.innerHTML = `<div class="status-success">QR Code scanned: ${decodedText}</div>`;
+                
+                // Process attendance marking
+                processAttendance(decodedText);
+            }).catch((err) => {
+                console.error("Error stopping QR Code scanner:", err);
+            });
+        },
+        (errorMessage) => {
+            // Error or QR not detected
+            console.log(`QR Code scanning error: ${errorMessage}`);
+        }
+    ).catch((err) => {
+        scanResult.innerHTML = `<div class="status-error">Error accessing camera: ${err}</div>`;
+        console.error("Error starting QR Code scanner:", err);
+    });
+}
+
+// Load attendance history for the student
+async function loadAttendanceHistory() {
+    try {
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+        
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        // Get the attendance history table body
+        const attendanceHistory = document.getElementById('attendance-history');
+        
+        // Show loading message
+        const attendanceStatus = document.getElementById('attendance-status');
+        attendanceStatus.innerHTML = `
+            <div class="status-info">
+                <i class="fas fa-spinner fa-spin"></i>
+                Loading your attendance records...
+            </div>
+        `;
+        
+        // Fetch attendance data from server
+        const response = await fetch('/api/student/attendance-history', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch attendance history');
+        }
+        
+        const data = await response.json();
+        
+        // Clear loading message
+        attendanceStatus.innerHTML = '';
+        
+        // Clear existing rows
+        attendanceHistory.innerHTML = '';
+        
+        // Check if we have attendance records
+        if (data.records && data.records.length > 0) {
+            // Add each record to the table
+            data.records.forEach(record => {
+                addAttendanceToHistory(record);
+            });
+        } else {
+            // Show no records message
+            attendanceStatus.innerHTML = `
+                <div class="status-info">
+                    <i class="fas fa-info-circle"></i>
+                    No attendance records found.
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error loading attendance history:', error);
+        
+        // Show error message
+        const attendanceStatus = document.getElementById('attendance-status');
+        attendanceStatus.innerHTML = `
+            <div class="status-error">
+                <i class="fas fa-times-circle"></i>
+                Error loading attendance history. Please try again.
+            </div>
+        `;
+    }
+}
+
+// Add an attendance record to the history table
+function addAttendanceToHistory(record) {
+    const attendanceHistory = document.getElementById('attendance-history');
+    if (!attendanceHistory) return;
+    
+    // Format date if it's in ISO format
+    let formattedDate = record.date;
+    if (record.date && record.date.includes('-')) {
+        const date = new Date(record.date);
+        formattedDate = date.toLocaleDateString();
+    }
+    
+    // Determine the status class for styling
+    let statusClass = '';
+    switch(record.status.toLowerCase()) {
+        case 'present':
+            statusClass = 'status-present';
+            break;
+        case 'late':
+            statusClass = 'status-late';
+            break;
+        case 'absent':
+            statusClass = 'status-absent';
+            break;
+    }
+
+// Add new attendance record to history
+function addAttendanceToHistory(record) {
+    const attendanceHistory = document.getElementById('attendance-history');
+    if (!attendanceHistory) return;
+    
+    let statusClass = '';
+    switch(record.status) {
+        case 'Present':
+            statusClass = 'status-present';
+            break;
+        case 'Late':
+            statusClass = 'status-late';
+            break;
+        case 'Absent':
+            statusClass = 'status-absent';
+            break;
+    }
+    
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>${record.course}</td>
+        <td>${record.date}</td>
+        <td>${record.time}</td>
+        <td><span class="attendance-status-badge ${statusClass}">${record.status}</span></td>
+    `;
+    
+    // Add with animation
+    newRow.style.backgroundColor = 'rgba(66, 153, 225, 0.1)';
+    attendanceHistory.insertBefore(newRow, attendanceHistory.firstChild);
+    
+    // Reset background color after animation
+    setTimeout(() => {
+        newRow.style.backgroundColor = '';
+    }, 3000);
+}

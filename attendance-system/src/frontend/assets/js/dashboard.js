@@ -43,97 +43,107 @@ document.addEventListener('DOMContentLoaded', function() {
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (logoutLink) logoutLink.addEventListener('click', handleLogout);
     
-    // Set student name (replace with your actual user data retrieval)
-    // For demo purposes, using a hardcoded name
-    const mockUserData = {
-        username: "John Smith",
-        id: "12345",
-        role: "student"
-    };
-    
-    if (studentName) studentName.textContent = mockUserData.username;
-    if (welcomeName) welcomeName.textContent = mockUserData.username;
+    // Set student name (fetch from backend or localStorage)
+    async function displayStudentName() {
+        const studentNameElements = [document.getElementById('student-name')].filter(Boolean);
+        const welcomeNameElements = [document.getElementById('welcome-name')].filter(Boolean);
+        if (studentNameElements.length === 0 && welcomeNameElements.length === 0) return;
+        const token = localStorage.getItem('token');
+        let userData = null;
+        try {
+            userData = JSON.parse(localStorage.getItem('userData'));
+        } catch (error) {
+            console.error('Error parsing userData from localStorage:', error);
+        }
+        if (userData && userData.name) {
+            studentNameElements.forEach(e => e.textContent = userData.name);
+            welcomeNameElements.forEach(e => e.textContent = userData.name);
+            return;
+        }
+        if (token) {
+            try {
+                const response = await fetch('/api/user/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (userData) {
+                        userData.name = data.name;
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                    } else {
+                        localStorage.setItem('userData', JSON.stringify({ name: data.name, id: data.id }));
+                    }
+                    studentNameElements.forEach(e => e.textContent = data.name);
+                    welcomeNameElements.forEach(e => e.textContent = data.name);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error fetching student profile:', error);
+            }
+        }
+        studentNameElements.forEach(e => e.textContent = 'Student');
+        welcomeNameElements.forEach(e => e.textContent = 'Student');
+    }
+    displayStudentName();
     
     // Load courses
     loadCourses();
 });
 
-function loadCourses() {
+async function loadCourses() {
     const courseList = document.getElementById('course-list');
     if (!courseList) return;
-    
-    // Mock courses data (replace with actual API call)
-    const courses = [
-        {
-            id: "CS101",
-            name: "Introduction to Programming",
-            instructor: "Dr. Jane Wilson",
-            schedule: "Mon, Wed 10:00 AM",
-            attendanceRate: 95
-        },
-        {
-            id: "CS232",
-            name: "Database Management Systems",
-            instructor: "Prof. Robert Lee",
-            schedule: "Tue, Thu 1:00 PM",
-            attendanceRate: 88
-        },
-        {
-            id: "MATH205",
-            name: "Linear Algebra",
-            instructor: "Dr. Emily Chen",
-            schedule: "Mon, Wed, Fri 9:00 AM",
-            attendanceRate: 76
-        },
-        {
-            id: "ENG101",
-            name: "Technical Communication",
-            instructor: "Prof. Sarah Brown",
-            schedule: "Thu 3:00 PM",
-            attendanceRate: 92
-        }
-    ];
-    
-    // Update dashboard stats
-    updateStats(courses);
-    
-    // Generate course cards
-    let coursesHTML = '';
-    
-    if (courses.length === 0) {
-        coursesHTML = '<div class="empty-state"><p>You are not enrolled in any courses.</p></div>';
-    } else {
-        courses.forEach(course => {
-            // Determine color based on attendance rate
-            let statusColor = course.attendanceRate >= 90 ? 'var(--success-color)' : 
-                            course.attendanceRate >= 80 ? 'var(--warning-color)' : 
-                            'var(--danger-color)';
-            
-            coursesHTML += `
-                <div class="course-card">
-                    <div class="course-header">
-                        <h3>${course.name}</h3>
-                        <span class="course-code">${course.id}</span>
-                    </div>
-                    <div class="course-info">
-                        <p><i class="fas fa-chalkboard-teacher"></i> ${course.instructor}</p>
-                        <p><i class="fas fa-clock"></i> ${course.schedule}</p>
-                    </div>
-                    <div class="course-attendance">
-                        <div class="attendance-bar">
-                            <div class="attendance-progress" style="width: ${course.attendanceRate}%; background-color: ${statusColor};"></div>
-                        </div>
-                        <span>${course.attendanceRate}% Attendance</span>
-                    </div>
-                    <div class="course-actions">
-                        <a href="course-details.html?id=${course.id}" class="btn-small">View Details</a>
-                    </div>
-                </div>
-            `;
-        });
+    // Get registration_number from userData in localStorage
+    let userData = null;
+    try {
+        userData = JSON.parse(localStorage.getItem('userData'));
+    } catch (e) {}
+    const registrationNumber = userData?.registrationNumber || userData?.registration_number;
+    if (!registrationNumber) {
+        courseList.innerHTML = '<div class="error-state"><p>Could not determine student registration number.</p></div>';
+        return;
     }
-    
-    courseList.innerHTML = coursesHTML;
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch(`/api/student/courses/${registrationNumber}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            courseList.innerHTML = `<div class="error-state"><p>Error loading courses: ${response.status} ${response.statusText}</p></div>`;
+            console.error('Failed to fetch student courses:', response.status, response.statusText);
+            return;
+        }
+        const data = await response.json();
+        const courses = data.courses || [];
+        updateStats(courses);
+        let coursesHTML = '';
+        if (courses.length === 0) {
+            coursesHTML = '<div class="empty-state"><p>You are not enrolled in any courses.</p></div>';
+        } else {
+            courses.forEach(course => {
+                coursesHTML += `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h3>${course.course_title}</h3>
+                            <span class="course-code">${course.course_code}</span>
+                        </div>
+                        <div class="course-info">
+                            <p><i class="fas fa-chalkboard-teacher"></i> ${course.instructor_name || 'N/A'}</p>
+                        </div>
+                        <div class="course-actions">
+                            <a href="course-details.html?id=${course.course_id}" class="btn-small">View Details</a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        courseList.innerHTML = coursesHTML;
+    } catch (error) {
+        courseList.innerHTML = '<div class="error-state"><p>Error loading courses: ' + error.message + '</p></div>';
+        console.error('Error loading courses:', error);
+    }
 }
 
 function updateStats(courses) {

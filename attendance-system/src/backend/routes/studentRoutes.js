@@ -2,11 +2,12 @@ const express = require('express');
 const db = require('../config/db');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
+const studentController = require('../controllers/studentController');
 
 const router = express.Router();
 
 // Route to check if a student exists by registration number
-router.get('/check/:regNumber', authMiddleware, roleMiddleware('faculty'), async (req, res) => {
+router.get('/check/:regNumber', authMiddleware.auth, roleMiddleware(['faculty']), async (req, res) => {
     try {
         const { regNumber } = req.params;
         
@@ -39,5 +40,7 @@ router.get('/check/:regNumber', authMiddleware, roleMiddleware('faculty'), async
         });
     }
 });
+
+router.get('/courses/:registration_number', authMiddleware.auth, studentController.getStudentCourses);
 
 module.exports = router;
