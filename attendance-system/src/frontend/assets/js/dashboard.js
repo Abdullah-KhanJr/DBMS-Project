@@ -175,22 +175,43 @@ function updateStats(courses) {
     const courseCount = document.getElementById('course-count');
     const attendanceRate = document.getElementById('attendance-rate');
     const absentCount = document.getElementById('absent-count');
-    
+
     if (courseCount) courseCount.textContent = courses.length;
-    
-    // Calculate average attendance
-    if (attendanceRate && courses.length > 0) {
-        const totalAttendance = courses.reduce((sum, course) => sum + course.attendanceRate, 0);
-        const avgAttendance = Math.round(totalAttendance / courses.length);
-        attendanceRate.textContent = avgAttendance + '%';
-    }
-    
-    // Calculate total absences (estimating 15 classes per course)
-    if (absentCount && courses.length > 0) {
-        const totalClasses = courses.length * 15; // Assuming 15 classes per course
-        const totalAttendance = courses.reduce((sum, course) => sum + course.attendanceRate, 0) / 100;
-        const avgAttendance = totalAttendance / courses.length;
-        const absences = Math.round(totalClasses * (1 - avgAttendance));
-        absentCount.textContent = absences;
-    }
+
+    // Calculate total attendance and absences across all courses
+    let totalSessions = 0;
+    let totalPresent = 0;
+    let totalAbsent = 0;
+    let totalCoursesWithSessions = 0;
+
+    const token = localStorage.getItem('token');
+    let userData = null;
+    try { userData = JSON.parse(localStorage.getItem('userData')); } catch (e) {}
+    const registrationNumber = userData?.registrationNumber || userData?.registration_number;
+
+    // We'll use Promise.all to fetch all matrix data in parallel
+    Promise.all(courses.map(async (course) => {
+        try {
+            const matrixRes = await fetch(`/api/faculty/attendance/matrix?course_id=${course.course_id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const matrixData = await matrixRes.json();
+            const sessions = matrixData.sessions || [];
+            const attendance = matrixData.attendance || [];
+            if (sessions.length > 0) totalCoursesWithSessions++;
+            totalSessions += sessions.length;
+            // Count present and absent for this student
+            attendance.forEach(a => {
+                if (String(a.registration_number) === String(registrationNumber)) {
+                    if (a.status_label === 'Present') totalPresent++;
+                    if (a.status_label === 'Absent') totalAbsent++;
+                }
+            });
+        } catch (e) {}
+    })).then(() => {
+        // Calculate average attendance rate
+        let avgAttendance = totalSessions > 0 ? ((totalPresent / totalSessions) * 100).toFixed(1) : '0.0';
+        if (attendanceRate) attendanceRate.textContent = avgAttendance + '%';
+        if (absentCount) absentCount.textContent = totalAbsent;
+    });
 }
