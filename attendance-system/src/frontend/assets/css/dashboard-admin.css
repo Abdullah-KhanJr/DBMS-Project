@@ -524,6 +524,7 @@ body {
     overflow: auto;
     align-items: center;
     justify-content: center;
+    padding-top: 10%;
 }
 
 .modal.active {
@@ -782,6 +783,7 @@ body {
     text-decoration: none;
     transition: var(--transition);
     margin-right: 0.25rem;
+    border: none;
 }
 
 .btn-small:hover {
@@ -801,4 +803,172 @@ body {
 
 .clickable:active {
     transform: translateY(-1px);
+}
+
+/* Edit Attendance Modal Styles for Admin */
+#edit-attendance-modal.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(30, 41, 59, 0.25);
+  justify-content: center;
+  align-items: center;
+}
+#edit-attendance-modal.modal[style*="block"] {
+  display: flex !important;
+}
+#edit-attendance-modal .modal-content {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(30,41,59,0.18);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  min-width: 350px;
+  /* max-width: 480px; */
+  width: 100%;
+  position: relative;
+  animation: modalPopIn 0.18s cubic-bezier(.4,2,.6,1) 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+@keyframes modalPopIn {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+#edit-attendance-modal .modal-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+#edit-attendance-modal .modal-header h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+#edit-attendance-modal .modal-close {
+  font-size: 1.5rem;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.15s;
+  font-weight: bold;
+  margin-left: 1.5rem;
+}
+#edit-attendance-modal .modal-close:hover {
+  color: #ef4444;
+}
+#edit-attendance-modal .session-badge {
+  display: inline-block;
+  /* background: #2563eb; */
+  color: #000000;
+  font-weight: 700;
+  font-size: 1.05em;
+  /* border-radius: 16px; */
+  padding: 0.25em 1.1em;
+  margin-bottom: 1.1rem;
+  letter-spacing: 0.02em;
+  /* box-shadow: 0 2px 8px rgba(66,153,225,0.08); */
+}
+#edit-attendance-modal .modal-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#edit-attendance-modal .modal-body > div {
+  margin-bottom: 0.5rem;
+  font-size: 1.05em;
+  text-align: center;
+}
+#edit-attendance-modal table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.25rem;
+  margin-top: 1.1rem;
+  background: none;
+}
+#edit-attendance-modal th, #edit-attendance-modal td {
+  padding: 0.45rem 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+}
+#edit-attendance-modal th {
+  color: #334155;
+  font-weight: 600;
+  font-size: 1em;
+  border-bottom: 1.5px solid #e2e8f0;
+  background: #f1f5f9;
+}
+#edit-attendance-modal td {
+  color: #475569;
+  font-size: 0.98em;
+  background: #f8fafc;
+  border-radius: 6px;
+}
+#edit-attendance-modal select {
+  padding: 0.25rem 0.7rem;
+  border-radius: 6px;
+  border: 1.5px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  font-size: 1em;
+  transition: border 0.15s;
+}
+#edit-attendance-modal select:focus {
+  border: 1.5px solid #2563eb;
+  outline: none;
+}
+#edit-attendance-modal .btn-primary {
+  background: #4299e1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1.5rem;
+  font-size: 1.08em;
+  font-weight: 600;
+  margin-top: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+#edit-attendance-modal .btn-primary:hover {
+  background: #4299e1;
+  box-shadow: 0 4px 16px rgba(59,130,246,0.13);
+}
+#edit-attendance-modal .btn-small.toggle-btn {
+  background: #4299e1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 1.1rem;
+  font-size: 0.98em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#edit-attendance-modal .btn-small.toggle-btn:hover {
+  background: #2563eb;
+}
+#edit-attendance-modal .modal-body strong {
+  color: #1e293b;
+}
+@media (max-width: 600px) {
+  #edit-attendance-modal .modal-content {
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+    min-width: 0;
+    max-width: 98vw;
+  }
+  #edit-attendance-modal .modal-header h2 {
+    font-size: 1.1rem;
+  }
+  #edit-attendance-modal .session-badge {
+    font-size: 0.95em;
+    padding: 0.18em 0.7em;
+  }
 }

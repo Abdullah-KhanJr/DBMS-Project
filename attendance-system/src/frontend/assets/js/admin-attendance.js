@@ -153,27 +153,41 @@ async function loadAdminAttendanceRecords() {
 function renderAttendanceRecords(sessions, tableElem, courses, courseId) {
     if (!tableElem) return;
     let html = '';
-    html += `<tr><th>Date</th><th>Course</th><th>Instructor</th><th>Present</th><th>Absent</th><th>Leave</th><th>Actions</th></tr>`;
+    html += `<tr><th>Session</th><th>Course</th><th>Instructor</th><th>Present</th><th>Absent</th><th>Leave</th><th>Actions</th></tr>`;
     if (!sessions.length) {
         html += '<tr><td colspan="7">No attendance records found.</td></tr>';
     } else {
-        sessions.forEach(session => {
-            const course = courses.find(c => c.course_code === session.course_code && (!courseId || c.course_id == courseId));
+        let filteredCourse = null;
+        if (courseId) {
+            filteredCourse = courses.find(c => String(c.course_id) === String(courseId));
+        }
+        // Group sessions by course to get per-course session numbers
+        const courseSessionCounters = {};
+        sessions.forEach((session, idx) => {
+            const course_code = session.course_code || filteredCourse?.course_code || 'N/A';
+            const course_title = session.course_title || filteredCourse?.course_title || 'N/A';
+            const section = session.section || filteredCourse?.section || 'N/A';
+            const instructor_name = session.instructor_name || filteredCourse?.instructor_name || 'N/A';
+            // Compose a unique key for each course+section
+            const courseKey = `${course_code}__${section}`;
+            if (!courseSessionCounters[courseKey]) courseSessionCounters[courseKey] = 1;
+            const sessionNumber = courseSessionCounters[courseKey];
+            courseSessionCounters[courseKey]++;
             html += `<tr>
-                <td>${formatDate(session.session_date)} ${session.session_time ? session.session_time.slice(0,5) : ''}</td>
-                <td>${session.course_code} - ${session.course_title}${session.section ? ' (Section: ' + session.section + ')' : ''}</td>
-                <td>${session.instructor_name || 'N/A'}</td>
+                <td>Session ${sessionNumber}<br><span style="opacity:0.6;font-size:0.70em;">${formatDate(session.session_date)} ${session.session_time ? session.session_time.slice(0,5) : ''}</span></td>
+                <td>${course_code} - ${course_title}${section ? ' (Section: ' + section + ')' : ''}</td>
+                <td>${instructor_name}</td>
                 <td>${session.present || 0}</td>
                 <td>${session.absent || 0}</td>
                 <td>${session.leave || 0}</td>
-                <td><button class="btn-small" onclick="openEditAttendanceModal(${session.session_id}, '${session.course_code}', '${session.course_title}', '${session.session_date}', '${session.instructor_name || ''}')">Edit</button></td>
+                <td><button class="btn-small" onclick="openEditAttendanceModal(${session.session_id}, '${course_code}', '${course_title}', '${session.session_date}', '${instructor_name}', ${sessionNumber})">Edit</button></td>
             </tr>`;
         });
     }
     tableElem.innerHTML = html;
 }
 
-window.openEditAttendanceModal = async function(session_id, course_code, course_title, session_date, instructor_name) {
+window.openEditAttendanceModal = async function(session_id, course_code, course_title, session_date, instructor_name, session_number) {
     // Show modal (implement modal HTML in your page if not present)
     let modal = document.getElementById('edit-attendance-modal');
     if (!modal) {
@@ -185,30 +199,49 @@ window.openEditAttendanceModal = async function(session_id, course_code, course_
     }
     modal.style.display = 'block';
     const modalBody = modal.querySelector('.modal-body');
-    modalBody.innerHTML = `<h2>Edit Attendance</h2><div>Loading...</div>`;
+    // Move session badge below heading and make it bold
+    let sessionBadge = session_number ? `<div class='session-badge' style='font-weight:700;margin-bottom:1.1rem;'>Session ${session_number}</div>` : '';
+    modalBody.innerHTML = `<h2>Edit Attendance</h2>${sessionBadge}<div><strong>Course:</strong> ${course_code} - ${course_title}</div><div><strong>Date:</strong> ${formatDate(session_date)}</div><div><strong>Instructor:</strong> ${instructor_name}</div><form id="edit-attendance-form"><table style="width:100%;margin-top:1rem;"><tr><th>Name</th><th>Status</th><th>Action</th></tr></table><button type="submit" class="btn-primary" style="margin-top:1rem;">Save Changes</button></form>`;
     // Fetch students for this session
     const token = localStorage.getItem('token');
     const res = await fetch(`/api/admin/attendance/session/${session_id}`, { headers: { 'Authorization': `Bearer ${token}` } });
     const data = await res.json();
     const students = data.students || [];
-    // Render form
-    let formHtml = `<div><strong>Course:</strong> ${course_code} - ${course_title}</div><div><strong>Date:</strong> ${formatDate(session_date)}</div><div><strong>Instructor:</strong> ${instructor_name}</div><form id="edit-attendance-form"><table style="width:100%;margin-top:1rem;"><tr><th>Student</th><th>Status</th></tr>`;
-    students.forEach(s => {
-        formHtml += `<tr><td>${s.name}</td><td><select name="status_${s.registration_number}">
-            <option value="Present"${s.status_label==='Present'?' selected':''}>Present</option>
-            <option value="Leave"${s.status_label==='Leave'?' selected':''}>Leave</option>
-            <option value="Absent"${s.status_label==='Absent'?' selected':''}>Absent</option>
-            <option value="-"${!s.status_label?' selected':''}>-</option>
-        </select></td></tr>`;
+    // Render student rows
+    const table = modalBody.querySelector('table');
+    students.forEach((s, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${s.name}</td>
+            <td>
+                <select name="status_${s.registration_number}" data-idx="${idx}">
+                    <option value="Present"${s.status_label==='Present'?' selected':''}>Present</option>
+                    <option value="Absent"${s.status_label==='Absent'?' selected':''}>Absent</option>
+                    <option value="Leave"${s.status_label==='Leave'?' selected':''}>Leave</option>
+                    <option value="-"${!s.status_label||s.status_label==='-'?' selected':''}>-</option>
+                </select>
+            </td>
+            <td><button type="button" class="btn-small toggle-btn" data-idx="${idx}">Toggle</button></td>
+        `;
+        table.appendChild(tr);
     });
-    formHtml += `</table><button type="submit" class="btn-primary" style="margin-top:1rem;">Save Changes</button></form>`;
-    modalBody.innerHTML = formHtml;
-    // Handle form submit
+    // Toggle logic
+    table.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const idx = this.getAttribute('data-idx');
+            const select = table.querySelector(`select[data-idx="${idx}"]`);
+            const options = ['Present', 'Absent', 'Leave', '-'];
+            let current = select.value;
+            let next = options[(options.indexOf(current) + 1) % options.length];
+            select.value = next;
+        });
+    });
+    // Save logic
     document.getElementById('edit-attendance-form').onsubmit = async function(e) {
         e.preventDefault();
-        const attendance = students.map(s => ({
+        const attendance = students.map((s, idx) => ({
             registration_number: s.registration_number,
-            status_label: this[`status_${s.registration_number}`].value
+            status_label: table.querySelector(`select[data-idx="${idx}"]`).value
         }));
         await fetch(`/api/admin/attendance/session/${session_id}`, {
             method: 'POST',
@@ -219,6 +252,8 @@ window.openEditAttendanceModal = async function(session_id, course_code, course_
         // Refresh the table
         document.querySelector('#course-filter').dispatchEvent(new Event('change'));
     };
+    // Ensure close works
+    modal.querySelector('.modal-close').onclick = closeEditAttendanceModal;
 };
 
 window.closeEditAttendanceModal = function() {
