@@ -139,32 +139,41 @@ async function loadCourseSessions() {
 // Create attendance session
 async function createSession(e) {
     e.preventDefault();
-    
     const token = localStorage.getItem('token');
     const statusMessage = document.getElementById('status-message');
     const attendanceSection = document.getElementById('attendance-section');
-    
     const courseId = document.getElementById('course_id').value;
     const sessionDate = document.getElementById('session_date').value;
     const sessionTime = document.getElementById('session_time').value;
     const duration = document.getElementById('duration').value;
-    
     if (!courseId || !sessionDate || !sessionTime || !duration) {
         showStatusMessage('Please fill in all required fields', 'error');
         return;
     }
-    
+    // Check if students are enrolled in the course
+    try {
+        const studentsRes = await fetch(`/api/faculty/courses/students?course_id=${courseId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const studentsData = await studentsRes.json();
+        const students = studentsData.students || [];
+        if (students.length === 0) {
+            showStatusMessage('No students enrolled, enroll students first.', 'error');
+            return;
+        }
+    } catch (err) {
+        showStatusMessage('Error checking enrolled students.', 'error');
+        return;
+    }
     try {
         // Format date and time for API
         const sessionDatetime = `${sessionDate}T${sessionTime}:00`;
-        
         // Log the data being sent (for debugging)
         console.log('Sending session data:', {
             course_id: courseId,
             session_date: sessionDatetime,
             duration: duration
         });
-        
         const response = await fetch('/api/faculty/course-sessions', {
             method: 'POST',
             headers: {
@@ -177,8 +186,6 @@ async function createSession(e) {
                 duration: parseInt(duration)
             })
         });
-        
-        // Defensive: check content-type before parsing as JSON
         const contentType = response.headers.get('content-type');
         let data;
         if (contentType && contentType.includes('application/json')) {
@@ -187,30 +194,19 @@ async function createSession(e) {
             const text = await response.text();
             throw new Error('Server error: ' + text);
         }
-        
         if (response.ok) {
-            showNotification('Session has been created successfully.', 'success');
-            
-            // Clear form values
+            showStatusMessage('Course session created successfully, scroll below to mark attendance.', 'success');
             document.getElementById('create-session-form').reset();
-            
-            // Set today's date as default again
             document.getElementById('session_date').value = new Date().toISOString().split('T')[0];
-            
-            // Load enrolled students for marking attendance
             await loadEnrolledStudents(courseId, data.session_id);
-            
-            // Show attendance marking section
             attendanceSection.style.display = 'block';
-            
-            // Update sessions list
             await loadCourseSessions();
         } else {
             let errorMsg = data.error || 'Failed to create session';
             if (errorMsg.toLowerCase().includes('duplicate') || errorMsg.toLowerCase().includes('already')) {
-                errorMsg = 'Session is already conducted for this time slot.';
+                errorMsg = 'Course session for this time slot already created.';
             }
-            showNotification(errorMsg, 'error');
+            showStatusMessage(errorMsg, 'error');
             throw new Error(errorMsg);
         }
     } catch (error) {
@@ -363,12 +359,19 @@ function markAllPresent() {
 function showStatusMessage(message, type) {
     const statusMessage = document.getElementById('status-message');
     statusMessage.textContent = message;
-    statusMessage.className = `status-message ${type}`;
-    
+    if (type === 'success') {
+        statusMessage.className = 'alert alert-success';
+    } else if (type === 'error') {
+        statusMessage.className = 'alert alert-danger';
+    } else {
+        statusMessage.className = 'alert alert-info';
+    }
+    statusMessage.style.display = 'block';
     // Clear message after 3 seconds
     setTimeout(() => {
         statusMessage.textContent = '';
-        statusMessage.className = 'status-message';
+        statusMessage.className = 'alert';
+        statusMessage.style.display = 'none';
     }, 3000);
 }
 

@@ -43,9 +43,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle registration form submission
     if (registerForm) {
+        const registerMessage = document.getElementById('registerMessage');
         registerForm.addEventListener('submit', function(event) {
             event.preventDefault();
-            
+            if (registerMessage) {
+                registerMessage.style.display = 'none';
+                registerMessage.className = 'alert';
+                registerMessage.textContent = '';
+            }
             try {
                 // Get form field values
                 const username = document.getElementById('username').value.trim();
@@ -56,13 +61,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Basic validation
                 if (!username || !email || !password || !confirmPassword || !role) {
-                    alert('Please fill out all required fields.');
+                    if (registerMessage) {
+                        registerMessage.textContent = 'Please fill out all required fields.';
+                        registerMessage.className = 'alert alert-danger';
+                        registerMessage.style.display = 'block';
+                    }
                     return;
                 }
                 
                 // Check if passwords match
                 if (password !== confirmPassword) {
-                    alert('Passwords do not match!');
+                    if (registerMessage) {
+                        registerMessage.textContent = 'Passwords do not match!';
+                        registerMessage.className = 'alert alert-danger';
+                        registerMessage.style.display = 'block';
+                    }
                     return;
                 }
                 
@@ -95,42 +108,87 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     body: JSON.stringify(userData)
                 })
-                .then(response => {
+                .then(async response => {
+                    let data = {};
+                    try { data = await response.json(); } catch {}
                     if (!response.ok) {
+                        if (response.status === 409) {
+                            if (registerMessage) {
+                                registerMessage.textContent = data.message || 'Email already registered.';
+                                registerMessage.className = 'alert alert-danger';
+                                registerMessage.style.display = 'block';
+                            }
+                        } else {
+                            if (registerMessage) {
+                                registerMessage.textContent = data.message || 'Registration failed. Please try again.';
+                                registerMessage.className = 'alert alert-danger';
+                                registerMessage.style.display = 'block';
+                            }
+                        }
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-                    return response.json();
+                    return data;
                 })
                 .then(data => {
                     if (data.success) {
-                        alert('Registration successful! Please log in.');
-                        window.location.href = '/pages/login.html';
+                        if (registerMessage) {
+                            registerMessage.textContent = 'Registration successful! Please log in.';
+                            registerMessage.className = 'alert alert-success';
+                            registerMessage.style.display = 'block';
+                        }
+                        setTimeout(() => {
+                            window.location.href = '/pages/login.html';
+                        }, 1500); // 1.5 seconds delay
                     } else {
-                        alert(data.message || 'Registration failed. Please try again.');
+                        if (registerMessage) {
+                            registerMessage.textContent = data.message || 'Registration failed. Please try again.';
+                            registerMessage.className = 'alert alert-danger';
+                            registerMessage.style.display = 'block';
+                        }
                     }
                 })
                 .catch(error => {
                     console.error('Registration error:', error);
-                    alert('Registration failed. Please try again. Server might be down or not properly configured.');
                 });
             } catch (err) {
                 console.error('Error in registration form submission:', err);
-                alert('An error occurred during form submission. Please try again.');
+                if (registerMessage) {
+                    registerMessage.textContent = 'An error occurred during form submission. Please try again.';
+                    registerMessage.className = 'alert alert-danger';
+                    registerMessage.style.display = 'block';
+                }
             }
+        });
+        // Hide error message when user starts typing
+        registerForm.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('input', () => {
+                if (registerMessage) {
+                    registerMessage.style.display = 'none';
+                }
+            });
         });
     }
 
     // Handle login form submission
     if (loginForm) {
+        const loginMessage = document.getElementById('loginMessage');
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault();
-            
+            if (loginMessage) {
+                loginMessage.style.display = 'none';
+                loginMessage.className = 'alert';
+                loginMessage.textContent = '';
+            }
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             
             // Validate login inputs
             if (!email || !password) {
-                alert('Please enter both email and password');
+                if (loginMessage) {
+                    loginMessage.textContent = 'Please enter both email and password';
+                    loginMessage.className = 'alert alert-danger';
+                    loginMessage.style.display = 'block';
+                }
                 return;
             }
             
@@ -148,14 +206,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(loginData)
             })
-            .then(response => {
+            .then(async response => {
+                let data = {};
+                try { data = await response.json(); } catch {}
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        if (loginMessage) {
+                            loginMessage.textContent = data.message || 'Invalid email or password.';
+                            loginMessage.className = 'alert alert-danger';
+                            loginMessage.style.display = 'block';
+                        }
+                    } else {
+                        if (loginMessage) {
+                            loginMessage.textContent = data.message || 'Login failed. Please try again.';
+                            loginMessage.className = 'alert alert-danger';
+                            loginMessage.style.display = 'block';
+                        }
+                    }
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                return response.json();
+                return data;
             })
             .then(data => {
                 if (data.success) {
+                    if (loginMessage) {
+                        loginMessage.style.display = 'none';
+                    }
                     // Store user data and token
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('userData', JSON.stringify(data.user));
@@ -163,12 +239,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Redirect based on role
                     redirectBasedOnRole(data.user.role);
                 } else {
-                    alert(data.message || 'Login failed. Please check your credentials.');
+                    if (loginMessage) {
+                        loginMessage.textContent = data.message || 'Login failed. Please check your credentials.';
+                        loginMessage.className = 'alert alert-danger';
+                        loginMessage.style.display = 'block';
+                    }
                 }
             })
             .catch(error => {
                 console.error('Login error:', error);
-                alert('Login failed. Please try again. Server might be down.');
+            });
+        });
+        // Hide error message when user starts typing
+        loginForm.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                if (loginMessage) {
+                    loginMessage.style.display = 'none';
+                }
             });
         });
     }
