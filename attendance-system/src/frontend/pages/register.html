@@ -18,23 +18,23 @@
         <form id="registerForm">
             <div class="form-group">
                 <label for="username">Full Name</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="username" placeholder="Name" required>
             </div>
             
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+                <input type="email" id="email" name="email" placeholder="email@giki.edu.pk" required>
                 <span id="emailError" class="error"></span>
             </div>
             
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" placeholder="Enter Password" required>
             </div>
             
             <div class="form-group">
                 <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
                 <span id="passwordError" class="error"></span>
             </div>
             
@@ -52,19 +52,26 @@
             <div id="studentFields" class="dynamic-fields" style="display: none;">
                 <div class="form-group">
                     <label for="registrationNumber">Registration Number</label>
-                    <input type="text" id="registrationNumber" name="registrationNumber">
+                    <input type="text" id="registrationNumber" name="registrationNumber" placeholder="2023113">
                     <span id="regNumberError" class="error"></span>
                 </div>
                 
                 <div class="form-group">
                     <label for="faculty">Faculty/Department</label>
                     <select id="faculty" name="faculty">
-                        <option value="">Select your faculty</option>
+                        <option value="">Select your department</option>
                         <option value="Computer Science">Computer Science</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="Artificial Intelligence">Artificial Intelligence</option>
+                        <option value="Cyber Security">Cyber Security</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Computer Engineering">Computer Engineering</option>
                         <option value="Electrical Engineering">Electrical Engineering</option>
                         <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Materials Science">Materials Science</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
                         <option value="Chemical Engineering">Chemical Engineering</option>
-                        <option value="Mathematics">Mathematics</option>
+                        <option value="Management Sciences">Management Sciences</option>
                     </select>
                 </div>
             </div>
@@ -81,11 +88,12 @@
                     <label for="department">Department</label>
                     <select id="department" name="department">
                         <option value="">Select department</option>
-                        <option value="Computer Science">Computer Science</option>
-                        <option value="Electrical Engineering">Electrical Engineering</option>
+                        <option value="Computer Science & Electrical Engineering">Computer Science & Electrical Engineering</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
                         <option value="Mechanical Engineering">Mechanical Engineering</option>
-                        <option value="Chemical Engineering">Chemical Engineering</option>
-                        <option value="Mathematics">Mathematics</option>
+                        <option value="Chemical & Materials Engineering">Chemical & Materials Engineering</option>
+                        <option value="Engineering Science">Engineering Science</option>
+                        <option value="Management Sciences">Management Sciences</option>
                     </select>
                 </div>
             </div>
