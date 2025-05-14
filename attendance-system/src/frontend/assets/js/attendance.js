@@ -97,42 +97,78 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadAttendanceHistory() {
     const attendanceHistory = document.getElementById('attendance-history');
     if (!attendanceHistory) return;
-    // Get studentId from userData in localStorage
+    // Get registration_number from userData in localStorage
     let userData = null;
     try {
         userData = JSON.parse(localStorage.getItem('userData'));
     } catch (e) {}
-    const studentId = userData?.userId || userData?.user_id;
-    if (!studentId) {
-        attendanceHistory.innerHTML = '<tr><td colspan="4">Could not determine student ID.</td></tr>';
+    const registrationNumber = userData?.registrationNumber || userData?.registration_number;
+    if (!registrationNumber) {
+        attendanceHistory.innerHTML = '<tr><td colspan="6">Could not determine student registration number.</td></tr>';
         return;
     }
+    const token = localStorage.getItem('token');
     try {
-        const response = await fetch(`/api/attendance/records/${studentId}`);
-        const records = await response.json();
-        const last10 = (records || []).slice(0, 10);
-    let historyHTML = '';
+        // Fetch all courses for the student
+        const coursesRes = await fetch(`/api/student/courses/${registrationNumber}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const coursesData = await coursesRes.json();
+        const courses = coursesData.courses || [];
+        let allRecords = [];
+        // For each course, fetch the matrix and collect attendance records for this student
+        await Promise.all(courses.map(async (course) => {
+            const matrixRes = await fetch(`/api/faculty/attendance/matrix?course_id=${course.course_id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const matrixData = await matrixRes.json();
+            const sessions = matrixData.sessions || [];
+            const attendance = matrixData.attendance || [];
+            sessions.forEach((session, idx) => {
+                const record = attendance.find(a => String(a.registration_number) === String(registrationNumber) && String(a.session_id) === String(session.session_id));
+                if (record) {
+                    allRecords.push({
+                        course_code: course.course_code,
+                        section: course.section || 'N/A',
+                        session: `Session ${idx + 1}`,
+                        date: session.session_date && session.session_date.includes('T') ? session.session_date.split('T')[0] : session.session_date,
+                        time: session.session_time ? session.session_time.slice(0,5) : '',
+                        status_label: record.status_label
+                    });
+                }
+            });
+        }));
+        // Sort by date+time descending
+        allRecords.sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`);
+            const dateB = new Date(`${b.date}T${b.time}`);
+            return dateB - dateA;
+        });
+        const last10 = allRecords.slice(0, 10);
+        let historyHTML = '';
         last10.forEach(record => {
-        let statusClass = '';
-            switch(record.status_label || record.status) {
+            let statusClass = '';
+            switch(record.status_label) {
                 case 'Present': statusClass = 'status-present'; break;
                 case 'Late': statusClass = 'status-late'; break;
                 case 'Absent': statusClass = 'status-absent'; break;
                 case 'Leave': statusClass = 'status-leave'; break;
-        }
-        historyHTML += `
-            <tr>
-                    <td>${record.course_title || record.course_id || ''}</td>
-                    <td>${record.attendance_date ? new Date(record.attendance_date).toLocaleDateString() : ''}</td>
-                    <td>${record.attendance_time ? record.attendance_time.slice(0,5) : ''}</td>
-                    <td><span class="attendance-status-badge ${statusClass}">${record.status_label || record.status}</span></td>
-            </tr>
-        `;
-    });
-        if (!historyHTML) historyHTML = '<tr><td colspan="4">No attendance records found.</td></tr>';
-    attendanceHistory.innerHTML = historyHTML;
+            }
+            historyHTML += `
+                <tr>
+                    <td>${record.course_code}</td>
+                    <td>${record.section}</td>
+                    <td>${record.session}</td>
+                    <td>${record.date}</td>
+                    <td>${record.time}</td>
+                    <td><span class="attendance-status-badge ${statusClass}">${record.status_label}</span></td>
+                </tr>
+            `;
+        });
+        if (!historyHTML) historyHTML = '<tr><td colspan="6">No attendance records found.</td></tr>';
+        attendanceHistory.innerHTML = historyHTML;
     } catch (error) {
-        attendanceHistory.innerHTML = `<tr><td colspan="4">Error loading attendance history: ${error.message}</td></tr>`;
+        attendanceHistory.innerHTML = `<tr><td colspan="6">Error loading attendance history: ${error.message}</td></tr>`;
     }
 }
 
