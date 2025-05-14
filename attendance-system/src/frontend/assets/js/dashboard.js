@@ -154,6 +154,7 @@ async function loadCourses() {
                     </div>
                     <div class="course-info">
                             <p><i class="fas fa-chalkboard-teacher"></i> ${course.instructor_name || 'N/A'}</p>
+                            <p style="margin-top:0.25rem;"><strong>Section:</strong> ${course.section || 'N/A'}</p>
                             <p style="margin-top:0.5rem;"><strong>Sessions Conducted:</strong> ${sessionsCount}</p>
                             <p style="margin-top:0.25rem;"><strong>Attendance:</strong> ${attendancePercentage}%</p>
                         </div>
