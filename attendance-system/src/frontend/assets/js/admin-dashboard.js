@@ -83,7 +83,25 @@ async function loadAdminStatsAndCourses() {
         if (courses.length === 0) {
             coursesHTML = '<div class="empty-state"><p>No courses found.</p></div>';
         } else {
-            courses.forEach(course => {
+            // For each course, fetch the number of students enrolled and the number of sessions conducted
+            for (const course of courses) {
+                let studentCount = 0;
+                let sessionsCount = 0;
+                try {
+                    const studentsRes = await fetch(`/api/faculty/courses/students?course_id=${course.course_id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const studentsData = await studentsRes.json();
+                    studentCount = (studentsData.students || []).length;
+                } catch (e) {}
+                try {
+                    const matrixRes = await fetch(`/api/faculty/attendance/matrix?course_id=${course.course_id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const matrixData = await matrixRes.json();
+                    const sessions = matrixData.sessions || [];
+                    sessionsCount = sessions.length;
+                } catch (e) {}
                 coursesHTML += `
                     <div class="course-card">
                         <div class="course-header">
@@ -93,10 +111,12 @@ async function loadAdminStatsAndCourses() {
                         <div class="course-info">
                             <p><i class="fas fa-chalkboard-teacher"></i> ${course.instructor_name || 'N/A'}</p>
                             <p><i class="fas fa-layer-group"></i> Section: ${course.section || 'N/A'}</p>
+                            <p><i class="fas fa-users"></i> Students: ${studentCount}</p>
+                            <p><i class="fas fa-calendar-check"></i> Sessions: ${sessionsCount}</p>
                         </div>
                     </div>
                 `;
-            });
+            }
         }
         if (courseListElem) courseListElem.innerHTML = coursesHTML;
     } catch (error) {
