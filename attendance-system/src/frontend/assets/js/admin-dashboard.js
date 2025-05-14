@@ -55,10 +55,51 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Load dashboard data
-    populateDashboardStats();
+    loadAdminStatsAndCourses();
 });
 
-function populateDashboardStats() {
-    // Mock data - in a real app, this would come from your API
-    document.getElementById('total-courses').textContent = '12';
+async function loadAdminStatsAndCourses() {
+    const totalCoursesElem = document.getElementById('total-courses');
+    const activeFacultyElem = document.getElementById('active-faculty');
+    const courseListElem = document.getElementById('admin-course-list');
+    const token = localStorage.getItem('token');
+    try {
+        // Fetch all courses
+        const coursesRes = await fetch('/api/admin/courses', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const coursesData = await coursesRes.json();
+        const courses = coursesData.courses || [];
+        // Set total courses
+        if (totalCoursesElem) totalCoursesElem.textContent = courses.length;
+        // Find unique faculty teaching at least one course
+        const facultySet = new Set();
+        courses.forEach(course => {
+            if (course.faculty_id) facultySet.add(course.faculty_id);
+        });
+        if (activeFacultyElem) activeFacultyElem.textContent = facultySet.size;
+        // Render course cards
+        let coursesHTML = '';
+        if (courses.length === 0) {
+            coursesHTML = '<div class="empty-state"><p>No courses found.</p></div>';
+        } else {
+            courses.forEach(course => {
+                coursesHTML += `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <h3>${course.course_title}</h3>
+                            <span class="course-code">${course.course_code}</span>
+                        </div>
+                        <div class="course-info">
+                            <p><i class="fas fa-chalkboard-teacher"></i> ${course.instructor_name || 'N/A'}</p>
+                            <p><i class="fas fa-layer-group"></i> Section: ${course.section || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        if (courseListElem) courseListElem.innerHTML = coursesHTML;
+    } catch (error) {
+        if (courseListElem) courseListElem.innerHTML = '<div class="error-state"><p>Error loading courses: ' + error.message + '</p></div>';
+    }
 }

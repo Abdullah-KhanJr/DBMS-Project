@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,7 +64,7 @@
                 </div>
 
                 <div class="dashboard-stats">
-                    <a href="courses-list.html" id="courses-card" class="stat-card clickable">
+                    <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-book"></i>
                         </div>
@@ -73,7 +72,25 @@
                             <h3 id="total-courses">0</h3>
                             <p>Total Courses</p>
                         </div>
-                    </a>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="active-faculty">0</h3>
+                            <p>Active Faculty Members</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="courses-section">
+                    <div class="section-header">
+                        <h2>All Courses</h2>
+                    </div>
+                    <div class="course-list" id="admin-course-list">
+                        <!-- Course cards will be populated here via JavaScript -->
+                    </div>
                 </div>
             </div>
         </div>
